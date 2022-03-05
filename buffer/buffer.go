@@ -13,8 +13,13 @@ type Writer interface {
 	io.StringWriter
 }
 
+type Reader interface {
+	io.Reader
+}
+
 type Buffer struct {
 	Output Writer
+	Input  Reader
 
 	name       string
 	beforeLine string
@@ -23,6 +28,7 @@ type Buffer struct {
 
 func NewBuffer(name string) Buffer {
 	return Buffer{
+		Input:      os.Stdin,
 		Output:     os.Stdout,
 		name:       name,
 		beforeLine: "[%v]: ",
@@ -42,6 +48,14 @@ func (b *Buffer) Write(p []byte) (int, error) {
 		b.Output.Write(NewLine)
 	}
 	return len(p), nil
+}
+
+func (b *Buffer) WriteString(s string) (int, error) {
+	return b.Write([]byte(s))
+}
+
+func (b *Buffer) Read(p []byte) (int, error) {
+	return b.Input.Read(p)
 }
 
 func (b *Buffer) Close(p []byte) error {
