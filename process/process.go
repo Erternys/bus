@@ -8,7 +8,7 @@ import (
 
 type Process struct {
 	Pid    int
-	Deamon bool
+	Daemon bool
 	Stdin  buffer.Reader
 	Stdout buffer.Writer
 	Stderr buffer.Writer
@@ -25,7 +25,7 @@ func NewProcess(name string, file string, args ...string) Process {
 
 	return Process{
 		Pid:    -1,
-		Deamon: false,
+		Daemon: false,
 		name:   name,
 		file:   file,
 		args:   args,
@@ -58,8 +58,19 @@ func (p *Process) Run() error {
 }
 
 func (p *Process) Wait() error {
-	err := p.cmd.Wait()
-
+	state, err := p.cmd.Process.Wait()
+	for !state.Exited() {
+		state, err = p.cmd.Process.Wait()
+	}
+	if state.ExitCode() == 0 || !p.Daemon {
+		return err
+	}
+	p.Create()
+	err = p.Run()
+	if err != nil {
+		return err
+	}
+	err = p.Wait()
 	return err
 }
 

@@ -7,10 +7,16 @@ import (
 func main() {
 	p := process.NewProcess(
 		"echo",
-		"echo",
-		"Hello\nWorld!",
+		"v",
+		"run",
+		".",
 	)
-	p.Create()
-	p.Run()
-	p.Wait()
+	err := p.Run()
+	if err != nil {
+		panic(err)
+	}
+	err = p.Wait()
+	if err != nil {
+		panic(err)
+	}
 }
