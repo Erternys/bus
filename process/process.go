@@ -3,7 +3,7 @@ package process
 import (
 	"bus/buffer"
 	"errors"
-	"os/exec"
+	"strings"
 )
 
 type Process struct {
@@ -12,23 +12,21 @@ type Process struct {
 	Stdin  buffer.Reader
 	Stdout buffer.Writer
 	Stderr buffer.Writer
-	cmd    *exec.Cmd
+	cmd    *Command
 
-	name string
-	file string
-	args []string
+	name          string
+	commandString string
 }
 
-func NewProcess(name string, file string, args ...string) Process {
+func NewProcess(name string, command string) Process {
 	processBuffer := buffer.NewBuffer(name)
 	processErrBuffer := buffer.NewBuffer(name + ":error")
 
 	return Process{
-		Pid:    -1,
-		Daemon: false,
-		name:   name,
-		file:   file,
-		args:   args,
+		Pid:           -1,
+		Daemon:        false,
+		name:          name,
+		commandString: command,
 
 		cmd:    nil,
 		Stdin:  &processBuffer,
@@ -38,11 +36,12 @@ func NewProcess(name string, file string, args ...string) Process {
 }
 
 func (p *Process) Create() {
-	p.cmd = exec.Command(p.file, p.args...)
-
-	p.cmd.Stdin = p.Stdin
-	p.cmd.Stdout = p.Stdout
-	p.cmd.Stderr = p.Stderr
+	p.cmd = &Command{
+		value:  strings.Split(p.commandString, " "),
+		Stdin:  p.Stdin,
+		Stdout: p.Stdout,
+		Stderr: p.Stderr,
+	}
 }
 
 func (p *Process) Run() error {
@@ -53,19 +52,15 @@ func (p *Process) Run() error {
 	if err != nil {
 		return err
 	}
-	p.Pid = p.cmd.Process.Pid
+	p.Pid = p.cmd.Pid
 	return nil
 }
 
 func (p *Process) Wait() error {
-	state, err := p.cmd.Process.Wait()
-	for !state.Exited() {
-		state, err = p.cmd.Process.Wait()
-	}
-	if state.ExitCode() == 0 || !p.Daemon {
+	err := p.cmd.Wait()
+	if p.cmd.State.ExitCode() == 0 || !p.Daemon {
 		return err
 	}
-	p.Create()
 	err = p.Run()
 	if err != nil {
 		return err
@@ -78,5 +73,5 @@ func (p *Process) Kill() error {
 	if p.cmd == nil {
 		return errors.New("you can't kill a process if you haven't created one before")
 	}
-	return p.cmd.Process.Kill()
+	return p.cmd.Kill()
 }

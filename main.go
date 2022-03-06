@@ -7,9 +7,7 @@ import (
 func main() {
 	p := process.NewProcess(
 		"echo",
-		"v",
-		"run",
-		".",
+		"echo test 'test'",
 	)
 	err := p.Run()
 	if err != nil {
