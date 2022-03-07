@@ -1,20 +1,32 @@
 package main
 
 import (
-	"bus/process"
+	"bus/cli"
+	"os"
 )
 
 func main() {
-	p := process.NewProcess(
-		"echo",
-		"echo test 'test'",
+	app := cli.NewApp(
+		"bus",
+		"",
+		"",
+		cli.Command{
+			Name:    "test",
+			Aliases: []string{"t"},
+		},
 	)
-	err := p.Run()
-	if err != nil {
-		panic(err)
-	}
-	err = p.Wait()
-	if err != nil {
-		panic(err)
-	}
+
+	app.Run(os.Args[1:])
+	// p := process.NewProcess(
+	// 	"echo",
+	// 	"echo test 'test'",
+	// )
+	// err := p.Run()
+	// if err != nil {
+	// 	panic(err)
+	// }
+	// err = p.Wait()
+	// if err != nil {
+	// 	panic(err)
+	// }
 }
