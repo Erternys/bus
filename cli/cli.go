@@ -40,13 +40,22 @@ func NewApp(name string, description string, version string, commands ...Command
 }
 
 func (c *CliApp) Run(args []string) error {
-	for _, arg := range args {
+	context := NewContext(c)
+	for i := 0; i < len(args); i++ {
+		arg := args[i]
 		if strings.HasPrefix(arg, "-") {
+			name, value := arg, ""
+			if strings.Contains(arg, "=") {
+				slice := strings.Split(arg, "=")
+				name = slice[0]
+				value = strings.Join(slice[1:], "=")
+			}
+			context.Flags[name] = value
 			continue
 		}
 		for _, command := range c.commands {
 			if command.Name == arg || inArray(arg, command.Aliases) {
-				command.Cli = c
+				command.Handle(context)
 			}
 		}
 	}
