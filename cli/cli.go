@@ -12,6 +12,7 @@ type CliApp struct {
 
 	args     []string
 	commands []Command
+	flags    []Flag
 }
 
 func inArray(val interface{}, array interface{}) bool {
@@ -28,37 +29,60 @@ func inArray(val interface{}, array interface{}) bool {
 	return false
 }
 
-func NewApp(name string, description string, version string, commands ...Command) CliApp {
+func NewApp(name string, description string, version string) CliApp {
 	return CliApp{
 		Name:        name,
 		Description: description,
 		Version:     version,
 
 		args:     []string{},
-		commands: commands,
+		commands: []Command{},
+		flags:    []Flag{},
 	}
 }
 
+func (c *CliApp) AddCommand(command Command) {
+	c.commands = append(c.commands, command)
+}
+func (c *CliApp) AddFlag(flag Flag) {
+	c.flags = append(c.flags, flag)
+}
+
 func (c *CliApp) Run(args []string) error {
+	var currentCommand Command
 	context := NewContext(c)
 	for i := 0; i < len(args); i++ {
 		arg := args[i]
 		if strings.HasPrefix(arg, "-") {
-			name, value := arg, ""
+			currentFlag := DefaultFlag()
+			for _, flag := range c.flags {
+				if flag.Name == arg || inArray(arg, flag.Aliases) {
+					currentFlag = flag.clone()
+				}
+			}
 			if strings.Contains(arg, "=") {
 				slice := strings.Split(arg, "=")
-				name = slice[0]
-				value = strings.Join(slice[1:], "=")
+				currentFlag.Name = slice[0]
+				err := currentFlag.SetValue(strings.Join(slice[1:], "="))
+				if err != nil {
+					return err
+				}
+			} else {
+				currentFlag.Name = arg
+				currentFlag.Kind = Bool
+				currentFlag.Value = true
 			}
-			context.Flags[name] = value
+			context.Flags[currentFlag.Name] = currentFlag
 			continue
 		}
 		for _, command := range c.commands {
 			if command.Name == arg || inArray(arg, command.Aliases) {
-				command.Handle(context)
+				currentCommand = command
 			}
 		}
 	}
+
+	currentCommand.Handle(context)
 
 	return nil
 }

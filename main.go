@@ -2,6 +2,7 @@ package main
 
 import (
 	"bus/cli"
+	"fmt"
 	"os"
 )
 
@@ -10,12 +11,15 @@ func main() {
 		"bus",
 		"",
 		"",
-		cli.Command{
-			Name:    "test",
-			Aliases: []string{"t"},
-		},
 	)
-
+	app.AddCommand(cli.Command{
+		Name:    "test",
+		Aliases: []string{"t"},
+		Handle: func(c *cli.Context) {
+			t := c.Flags["-test"]
+			fmt.Println(t.Name)
+		},
+	})
 	app.Run(os.Args[1:])
 	// p := process.NewProcess(
 	// 	"echo",
