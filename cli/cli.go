@@ -54,6 +54,7 @@ func (c *CliApp) Run(args []string) error {
 	for i := 0; i < len(args); i++ {
 		arg := args[i]
 		if strings.HasPrefix(arg, "-") {
+			arg = strings.TrimLeft(arg, "-")
 			currentFlag := DefaultFlag()
 			for _, flag := range c.flags {
 				if flag.Name == arg || inArray(arg, flag.Aliases) {

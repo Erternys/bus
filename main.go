@@ -16,8 +16,8 @@ func main() {
 		Name:    "test",
 		Aliases: []string{"t"},
 		Handle: func(c *cli.Context) {
-			t := c.Flags["-test"]
-			fmt.Println(t.Kind == cli.Float)
+			t := c.Flags["test"]
+			fmt.Println(t.Value)
 		},
 	})
 	app.Run(os.Args[1:])
