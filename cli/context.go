@@ -46,7 +46,7 @@ func (c *Context) GetFlag(name string, defaultValue Any) Flag {
 }
 
 func (c *Context) Execs(callbacks ...HandleExec) {
-	next(callbacks, c, 0)
+	next(callbacks, c, 0)()
 }
 
 func next(callbacks []HandleExec, c *Context, i int) func() {
