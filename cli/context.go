@@ -2,6 +2,7 @@ package cli
 
 import "reflect"
 
+type HandleExec func(c *Context, next func())
 type Any interface{}
 
 type Context struct {
@@ -42,4 +43,16 @@ func (c *Context) GetFlag(name string, defaultValue Any) Flag {
 		flag.Kind = String
 	}
 	return flag
+}
+
+func (c *Context) Execs(callbacks ...HandleExec) {
+	next(callbacks, c, 0)
+}
+
+func next(callbacks []HandleExec, c *Context, i int) func() {
+	return func() {
+		if len(callbacks) > i {
+			callbacks[i](c, next(callbacks, c, i+1))
+		}
+	}
 }
