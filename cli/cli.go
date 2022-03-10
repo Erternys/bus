@@ -62,11 +62,38 @@ func (c *CliApp) Run(args []string) error {
 			}
 			if strings.Contains(arg, "=") {
 				slice := strings.Split(arg, "=")
-				currentFlag.Name = slice[0]
-				err := currentFlag.SetValue(strings.Join(slice[1:], "="))
-				if err != nil {
-					return err
+				name, value := slice[0], strings.Join(slice[1:], "=")
+				if currentFlag.Name == "" {
+					currentFlag.setValueAndKind(value)
+				} else {
+					err := currentFlag.SetValue(value)
+					if err != nil {
+						return err
+					}
 				}
+				currentFlag.Name = name
+			} else if len(args) > i+2 && args[i+1] == "=" {
+				if currentFlag.Name == "" {
+					currentFlag.setValueAndKind(args[i+2])
+				} else {
+					err := currentFlag.SetValue(args[i+2])
+					if err != nil {
+						return err
+					}
+				}
+				currentFlag.Name = arg
+				i += 2
+			} else if len(args) > i+1 {
+				if currentFlag.Name == "" {
+					currentFlag.setValueAndKind(args[i+1])
+				} else {
+					err := currentFlag.SetValue(args[i+1])
+					if err != nil {
+						return err
+					}
+				}
+				currentFlag.Name = arg
+				i++
 			} else {
 				currentFlag.Name = arg
 				currentFlag.Kind = Bool

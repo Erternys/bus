@@ -3,6 +3,7 @@ package cli
 import (
 	"fmt"
 	"strconv"
+	"strings"
 )
 
 type FlagKind uint8
@@ -32,6 +33,33 @@ func NewFlag(name string, kind FlagKind, aliases ...string) Flag {
 
 func DefaultFlag() Flag {
 	return Flag{}
+}
+
+func (f *Flag) setValueAndKind(value string) {
+	switch value {
+	case "true", "yes", "y", "":
+		f.Value = true
+		f.Kind = Bool
+	case "false", "no", "n":
+		f.Value = false
+		f.Kind = Bool
+	default:
+		var err error = nil
+		var n Any = nil
+		if strings.Contains(value, ".") {
+			n, err = strconv.ParseFloat(value, 64)
+			f.Kind = Float
+		} else {
+			n, err = strconv.ParseInt(value, 10, 64)
+			f.Kind = Int
+		}
+		if err == nil {
+			f.Value = n
+		} else {
+			f.Value = value
+			f.Kind = String
+		}
+	}
 }
 
 func (f *Flag) SetValue(value string) error {
