@@ -49,7 +49,7 @@ func (c *CliApp) AddFlag(flag Flag) {
 }
 
 func (c *CliApp) Run(args []string) error {
-	var currentCommand Command
+	var currentCommand *Command = nil
 	context := NewContext(c)
 	for i := 0; i < len(args); i++ {
 		arg := args[i]
@@ -103,10 +103,14 @@ func (c *CliApp) Run(args []string) error {
 			context.Flags[currentFlag.Name] = currentFlag
 			continue
 		}
-		for _, command := range c.commands {
-			if command.Name == arg || inArray(arg, command.Aliases) {
-				currentCommand = command
+		if currentCommand == nil {
+			for _, command := range c.commands {
+				if command.Name == arg || inArray(arg, command.Aliases) {
+					currentCommand = &command
+				}
 			}
+		} else {
+			context.Args = append(context.Args, arg)
 		}
 	}
 

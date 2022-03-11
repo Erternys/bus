@@ -8,6 +8,7 @@ type Any interface{}
 type Context struct {
 	App *CliApp
 
+	Args  []string
 	Flags map[string]Flag
 	State map[string]Any
 }
@@ -15,6 +16,7 @@ type Context struct {
 func NewContext(app *CliApp) *Context {
 	return &Context{
 		App:   app,
+		Args:  []string{},
 		Flags: map[string]Flag{},
 		State: map[string]Any{},
 	}
