@@ -1,6 +1,7 @@
 package cli
 
 import (
+	"fmt"
 	"reflect"
 	"strings"
 )
@@ -50,6 +51,7 @@ func (c *CliApp) AddFlag(flag Flag) {
 
 func (c *CliApp) Run(args []string) error {
 	var currentCommand *Command = nil
+	var err error = nil
 	context := NewContext(c)
 	for i := 0; i < len(args); i++ {
 		arg := args[i]
@@ -114,7 +116,11 @@ func (c *CliApp) Run(args []string) error {
 		}
 	}
 
-	currentCommand.Handle(context)
+	if currentCommand.RequiredArgs > len(context.Args) {
+		err = fmt.Errorf("expected %v arguments, but got %v.", currentCommand.RequiredArgs, len(context.Args))
+	}
+
+	currentCommand.Handle(context, err)
 
 	return nil
 }

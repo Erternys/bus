@@ -13,9 +13,10 @@ func main() {
 		"",
 	)
 	app.AddCommand(cli.Command{
-		Name:    "test",
-		Aliases: []string{"t"},
-		Handle: func(c *cli.Context) {
+		Name:         "test",
+		Aliases:      []string{"t"},
+		RequiredArgs: 1,
+		Handle: func(c *cli.Context, _ error) {
 			t := c.Flags["test"]
 			fmt.Println(t.Value)
 		},
