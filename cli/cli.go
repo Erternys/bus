@@ -87,6 +87,7 @@ func (c *CliApp) Run(args []string) error {
 				} else {
 					err = currentFlag.SetValue(args[i+1])
 					if err != nil && strings.Contains(err.Error(), "parsing") {
+						currentFlag.Value = true
 						err = nil
 						i--
 					}

@@ -1,6 +1,9 @@
 package cli
 
-import "reflect"
+import (
+	"fmt"
+	"reflect"
+)
 
 type HandleExec func(c *Context, next func())
 type Any interface{}
@@ -30,6 +33,15 @@ func (c *Context) FlagExist(name string) bool {
 func (c *Context) GetFlag(name string, defaultValue Any) Flag {
 	if c.FlagExist(name) {
 		return c.Flags[name]
+	}
+
+	for _, flag := range c.App.flags {
+		if flag.Name == name {
+			current := flag.clone()
+			current.SetValue(fmt.Sprintf("%v", defaultValue))
+
+			return current
+		}
 	}
 
 	flag := DefaultFlag()
