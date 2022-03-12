@@ -16,18 +16,20 @@ const (
 )
 
 type Flag struct {
-	Name    string
-	Aliases []string
-	Value   interface{}
-	Kind    FlagKind
+	Name        string
+	Description string
+	Aliases     []string
+	Value       interface{}
+	Kind        FlagKind
 }
 
-func NewFlag(name string, kind FlagKind, aliases ...string) Flag {
+func NewFlag(name string, description string, kind FlagKind, aliases ...string) Flag {
 	return Flag{
-		Name:    name,
-		Kind:    kind,
-		Aliases: aliases,
-		Value:   nil,
+		Name:        name,
+		Description: description,
+		Kind:        kind,
+		Aliases:     aliases,
+		Value:       nil,
 	}
 }
 
@@ -93,9 +95,10 @@ func (f *Flag) SetValue(value string) error {
 
 func (f *Flag) clone() Flag {
 	return Flag{
-		Name:    f.Name,
-		Kind:    f.Kind,
-		Aliases: f.Aliases,
-		Value:   nil,
+		Name:        f.Name,
+		Description: f.Description,
+		Kind:        f.Kind,
+		Aliases:     f.Aliases,
+		Value:       nil,
 	}
 }

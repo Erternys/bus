@@ -12,9 +12,10 @@ type CliApp struct {
 	Description string
 	Version     string
 
-	args     []string
-	commands []Command
-	flags    []Flag
+	defaultCommand string
+	args           []string
+	commands       []Command
+	flags          []Flag
 }
 
 func inArray(val interface{}, array interface{}) bool {
@@ -37,9 +38,10 @@ func NewApp(name string, description string, version string) CliApp {
 		Description: description,
 		Version:     version,
 
-		args:     []string{},
-		commands: []Command{},
-		flags:    []Flag{},
+		defaultCommand: "help",
+		args:           []string{},
+		commands:       []Command{},
+		flags:          []Flag{},
 	}
 }
 
@@ -62,6 +64,7 @@ func (c *CliApp) Run(args []string) error {
 			for _, flag := range c.flags {
 				if flag.Name == arg || inArray(arg, flag.Aliases) {
 					currentFlag = flag.clone()
+					break
 				}
 			}
 			if strings.Contains(arg, "=") {
@@ -106,7 +109,11 @@ func (c *CliApp) Run(args []string) error {
 			for _, command := range c.commands {
 				if command.Name == arg || inArray(arg, command.Aliases) {
 					currentCommand = &command
+					break
 				}
+			}
+			if currentCommand == nil {
+				err = fmt.Errorf("unexpected \"%v\"", arg)
 			}
 		} else {
 			context.Args = append(context.Args, arg)
@@ -114,7 +121,15 @@ func (c *CliApp) Run(args []string) error {
 	}
 
 	if currentCommand == nil {
-		return errors.New("no command found")
+		for _, command := range c.commands {
+			if command.Name == c.defaultCommand {
+				currentCommand = &command
+				break
+			}
+		}
+		if currentCommand == nil {
+			return errors.New("no command found")
+		}
 	}
 
 	if currentCommand.RequiredArgs > len(context.Args) {
@@ -123,5 +138,5 @@ func (c *CliApp) Run(args []string) error {
 
 	currentCommand.Handle(context, err)
 
-	return nil
+	return err
 }

@@ -1,5 +1,10 @@
 package cli
 
+import (
+	"fmt"
+	"strings"
+)
+
 type HandleAction func(c *Context, err error)
 
 type Command struct {
@@ -8,4 +13,51 @@ type Command struct {
 	Description  string
 	RequiredArgs int
 	Handle       HandleAction
+}
+
+func (c *CliApp) SetHelpCommand() {
+	c.AddCommand(Command{
+		Name:         "help",
+		Aliases:      []string{"h"},
+		Description:  "Print help information",
+		RequiredArgs: 0,
+		Handle: func(c *Context, _ error) {
+			output := c.App.Description + "\n"
+
+			output += fmt.Sprintf("\nUsage:\n    %v [Flags] [Subcommand]\n", c.App.Name)
+
+			output += "\nFlags (Options):\n"
+			for _, flag := range c.App.flags {
+				aliases := " "
+				if len(flag.Aliases) > 0 {
+					aliases += "(-" + strings.Join(flag.Aliases, ", -") + ")"
+				}
+				output += fmt.Sprintf("    --%-16v %v\n", flag.Name+aliases, flag.Description)
+			}
+			output += "\nCommands:\n"
+			for _, command := range c.App.commands {
+				aliases := " "
+				if len(command.Aliases) > 0 {
+					aliases += "(" + strings.Join(command.Aliases, ", ") + ")"
+				}
+				output += fmt.Sprintf("    %-16v %v\n", command.Name+aliases, command.Description)
+			}
+
+			output += fmt.Sprintf("\nSee '%v help <command>' for more information on a specific command.\n", c.App.Name)
+
+			fmt.Println(output)
+		},
+	})
+}
+
+func (c *CliApp) SetVersionCommand() {
+	c.AddCommand(Command{
+		Name:         "version",
+		Aliases:      []string{"v"},
+		Description:  "Print version of " + c.Name,
+		RequiredArgs: 0,
+		Handle: func(c *Context, _ error) {
+			fmt.Println(c.App.Name + " " + c.App.Version)
+		},
+	})
 }
