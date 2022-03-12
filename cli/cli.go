@@ -1,6 +1,7 @@
 package cli
 
 import (
+	"errors"
 	"fmt"
 	"reflect"
 	"strings"
@@ -69,20 +70,14 @@ func (c *CliApp) Run(args []string) error {
 				if currentFlag.Name == "" {
 					currentFlag.setValueAndKind(value)
 				} else {
-					err := currentFlag.SetValue(value)
-					if err != nil {
-						return err
-					}
+					err = currentFlag.SetValue(value)
 				}
 				currentFlag.Name = name
 			} else if len(args) > i+2 && args[i+1] == "=" {
 				if currentFlag.Name == "" {
 					currentFlag.setValueAndKind(args[i+2])
 				} else {
-					err := currentFlag.SetValue(args[i+2])
-					if err != nil {
-						return err
-					}
+					err = currentFlag.SetValue(args[i+2])
 				}
 				currentFlag.Name = arg
 				i += 2
@@ -90,9 +85,10 @@ func (c *CliApp) Run(args []string) error {
 				if currentFlag.Name == "" {
 					currentFlag.setValueAndKind(args[i+1])
 				} else {
-					err := currentFlag.SetValue(args[i+1])
-					if err != nil {
-						return err
+					err = currentFlag.SetValue(args[i+1])
+					if err != nil && strings.Contains(err.Error(), "parsing") {
+						err = nil
+						i--
 					}
 				}
 				currentFlag.Name = arg
@@ -114,6 +110,10 @@ func (c *CliApp) Run(args []string) error {
 		} else {
 			context.Args = append(context.Args, arg)
 		}
+	}
+
+	if currentCommand == nil {
+		return errors.New("no command found")
 	}
 
 	if currentCommand.RequiredArgs > len(context.Args) {
