@@ -1,17 +1,19 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
 	"os"
 	"os/exec"
 	"strings"
+	"unicode"
 )
 
 func input(prompt string, defaultValue string) string {
 	fmt.Print(prompt)
 
-	var value string
-	fmt.Scan(&value)
+	value, _ := bufio.NewReader(os.Stdin).ReadString('\n')
+	value = strings.TrimFunc(value, unicode.IsSpace)
 
 	if value == "" {
 		return defaultValue
@@ -29,5 +31,5 @@ func getwd() string {
 func getRepository() string {
 	out, _ := exec.Command("git", "config", "--get", "remote.origin.url").Output()
 
-	return string(out)
+	return strings.TrimFunc(string(out), unicode.IsSpace)
 }
