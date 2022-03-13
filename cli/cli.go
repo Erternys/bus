@@ -67,6 +67,20 @@ func (c *CliApp) Run(args []string) error {
 					break
 				}
 			}
+			if currentFlag.Name == "" {
+				for _, command := range c.commands {
+					if inArray(arg, command.FlagAliases) {
+						if currentCommand != nil {
+							context.Args = append(context.Args, currentCommand.Name)
+						}
+						currentCommand = &command
+						break
+					}
+				}
+				if currentFlag.Name != "" {
+					continue
+				}
+			}
 			if strings.Contains(arg, "=") {
 				slice := strings.Split(arg, "=")
 				name, value := slice[0], strings.Join(slice[1:], "=")
@@ -113,7 +127,7 @@ func (c *CliApp) Run(args []string) error {
 				}
 			}
 			if currentCommand == nil {
-				err = fmt.Errorf("unexpected \"%v\"", arg)
+				context.Args = append(context.Args, arg)
 			}
 		} else {
 			context.Args = append(context.Args, arg)

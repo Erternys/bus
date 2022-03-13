@@ -10,6 +10,7 @@ type HandleAction func(c *Context, err error)
 type Command struct {
 	Name         string
 	Aliases      []string
+	FlagAliases  []string
 	Description  string
 	RequiredArgs int
 	Handle       HandleAction
@@ -19,6 +20,7 @@ func (c *CliApp) SetHelpCommand() {
 	c.AddCommand(Command{
 		Name:         "help",
 		Aliases:      []string{"h"},
+		FlagAliases:  []string{"help", "h"},
 		Description:  "Print help information",
 		RequiredArgs: 0,
 		Handle: func(c *Context, _ error) {
@@ -54,7 +56,8 @@ func (c *CliApp) SetVersionCommand() {
 	c.AddCommand(Command{
 		Name:         "version",
 		Aliases:      []string{"v"},
-		Description:  "Print version of " + c.Name,
+		FlagAliases:  []string{"version", "v"},
+		Description:  "Print current version of " + c.Name,
 		RequiredArgs: 0,
 		Handle: func(c *Context, _ error) {
 			fmt.Println(c.App.Name + " " + c.App.Version)
