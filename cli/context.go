@@ -1,9 +1,6 @@
 package cli
 
-import (
-	"fmt"
-	"reflect"
-)
+import "fmt"
 
 type HandleExec func(c *Context, next func())
 type Any interface{}
@@ -46,12 +43,12 @@ func (c *Context) GetFlag(name string, defaultValue Any) Flag {
 
 	flag := DefaultFlag()
 	flag.Value = defaultValue
-	switch reflect.ValueOf(defaultValue).Kind() {
-	case reflect.Bool:
+	switch defaultValue.(type) {
+	case bool:
 		flag.Kind = Bool
-	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
+	case int, int8, int16, int32, int64, uint8, uint16, uint32, uint64:
 		flag.Kind = Int
-	case reflect.Float32, reflect.Float64:
+	case float32, float64:
 		flag.Kind = Float
 	default:
 		flag.Kind = String
