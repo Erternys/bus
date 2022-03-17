@@ -63,7 +63,6 @@ func (c *CliApp) Run(args []string) error {
 			currentFlag := DefaultFlag()
 			for _, flag := range c.flags {
 				if flag.Name == arg || inArray(arg, flag.Aliases) {
-					fmt.Println(flag)
 					currentFlag = flag.clone()
 					break
 				}
@@ -117,7 +116,6 @@ func (c *CliApp) Run(args []string) error {
 				currentFlag.Kind = Bool
 				currentFlag.Value = true
 			}
-			fmt.Println(currentFlag.Aliases)
 			context.Flags[currentFlag.Name] = currentFlag
 			continue
 		}
