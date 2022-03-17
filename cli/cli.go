@@ -63,6 +63,7 @@ func (c *CliApp) Run(args []string) error {
 			currentFlag := DefaultFlag()
 			for _, flag := range c.flags {
 				if flag.Name == arg || inArray(arg, flag.Aliases) {
+					fmt.Println(flag)
 					currentFlag = flag.clone()
 					break
 				}
@@ -85,21 +86,22 @@ func (c *CliApp) Run(args []string) error {
 				slice := strings.Split(arg, "=")
 				name, value := slice[0], strings.Join(slice[1:], "=")
 				if currentFlag.Name == "" {
+					currentFlag.Name = name
 					currentFlag.setValueAndKind(value)
 				} else {
 					err = currentFlag.SetValue(value)
 				}
-				currentFlag.Name = name
 			} else if len(args) > i+2 && args[i+1] == "=" {
 				if currentFlag.Name == "" {
+					currentFlag.Name = arg
 					currentFlag.setValueAndKind(args[i+2])
 				} else {
 					err = currentFlag.SetValue(args[i+2])
 				}
-				currentFlag.Name = arg
 				i += 2
 			} else if len(args) > i+1 {
 				if currentFlag.Name == "" {
+					currentFlag.Name = arg
 					currentFlag.setValueAndKind(args[i+1])
 				} else {
 					err = currentFlag.SetValue(args[i+1])
@@ -109,13 +111,13 @@ func (c *CliApp) Run(args []string) error {
 						i--
 					}
 				}
-				currentFlag.Name = arg
 				i++
 			} else {
 				currentFlag.Name = arg
 				currentFlag.Kind = Bool
 				currentFlag.Value = true
 			}
+			fmt.Println(currentFlag.Aliases)
 			context.Flags[currentFlag.Name] = currentFlag
 			continue
 		}
