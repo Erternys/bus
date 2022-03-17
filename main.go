@@ -2,10 +2,9 @@ package main
 
 import (
 	"bus/cli"
+	"bus/middleware"
 	"fmt"
-	"io/ioutil"
 	"os"
-	"syscall"
 
 	"gopkg.in/yaml.v3"
 )
@@ -40,12 +39,12 @@ func main() {
 						repository = input(fmt.Sprintf("git repository: (%v) ", getRepository()), getRepository())
 					}
 
-					content, _ := yaml.Marshal(map[string]interface{}{
-						"name":        name,
-						"version":     version,
-						"description": description,
-						"repository":  repository,
-						"packages":    make(map[string]interface{}),
+					content, _ := yaml.Marshal(middleware.Config{
+						Name:         name,
+						Version:      version,
+						Description:  description,
+						Repository:   repository,
+						PackagesPath: make([]*middleware.Package, 0),
 					})
 
 					file, _ := os.Create(path)
@@ -61,31 +60,11 @@ func main() {
 		Aliases:      []string{"r"},
 		RequiredArgs: 1,
 		Handle: func(c *cli.Context, _ error) {
-			c.Execs(readConfigFile)
+			c.Execs(middleware.ReadConfigFile)
 		},
 	})
 
 	app.SetHelpCommand()
 	app.SetVersionCommand()
 	app.Run(os.Args[1:])
-}
-
-func readConfigFile(c *cli.Context, next func()) {
-	configFilePath := c.GetFlag("config", "bus-ws.config.yaml").Value.(string)
-	file, err := ioutil.ReadFile(configFilePath)
-	if err != nil {
-		fmt.Printf("the config file does not exist, you can execute the command \"%s init\" or \"%s init repo\"\n", c.App.Name, c.App.Name)
-		syscall.Exit(1)
-	}
-
-	data := make(map[interface{}]interface{})
-	err = yaml.Unmarshal(file, &data)
-	if err != nil {
-		fmt.Println("the config file does not corect")
-		syscall.Exit(1)
-	}
-
-	c.State["config"] = data
-
-	next()
 }

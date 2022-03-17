@@ -23,7 +23,7 @@ func input(prompt string, defaultValue string) string {
 
 func getwd() string {
 	pwd, _ := os.Getwd()
-	arrPwd := strings.Split(pwd, "/")
+	arrPwd := strings.Split(pwd, string(os.PathSeparator))
 
 	return arrPwd[len(arrPwd)-1]
 }
