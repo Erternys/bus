@@ -9,13 +9,14 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
+var app = cli.NewApp(
+	"bus",
+	"Monorepo manager usable with several programming languages (not only JS)",
+	"0.1.0-beta",
+)
+
 func main() {
-	app := cli.NewApp(
-		"bus",
-		"p",
-		"0.1.0-beta",
-	)
-	app.AddFlag(cli.NewFlag("config", "change the config file used (by default: bus-ws.config.yaml)", cli.String, "c"))
+	app.AddFlag(cli.NewFlag("config", "Change the config file used (by default: bus-ws.config.yaml)", cli.String, "c"))
 	app.AddCommand(cli.Command{
 		Name:         "init",
 		RequiredArgs: 1,

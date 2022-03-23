@@ -2,6 +2,7 @@ package cli
 
 import (
 	"fmt"
+	"sort"
 	"strings"
 )
 
@@ -29,14 +30,20 @@ func (c *CliApp) SetHelpCommand() {
 			output += fmt.Sprintf("\nUsage:\n    %v [Flags] [Subcommand]\n", c.App.Name)
 
 			output += "\nFlags (Options):\n"
+			sort.Slice(c.App.flags, func(i, j int) bool {
+				return c.App.flags[i].Name < c.App.flags[j].Name
+			})
 			for _, flag := range c.App.flags {
 				aliases := " "
 				if len(flag.Aliases) > 0 {
 					aliases += "(-" + strings.Join(flag.Aliases, ", -") + ")"
 				}
-				output += fmt.Sprintf("    --%-16v %v\n", flag.Name+aliases, flag.Description)
+				output += fmt.Sprintf("    --%-14v %v\n", flag.Name+aliases, flag.Description)
 			}
 			output += "\nCommands:\n"
+			sort.Slice(c.App.commands, func(i, j int) bool {
+				return c.App.commands[i].Name < c.App.commands[j].Name
+			})
 			for _, command := range c.App.commands {
 				aliases := " "
 				if len(command.Aliases) > 0 {
