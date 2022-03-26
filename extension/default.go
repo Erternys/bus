@@ -17,8 +17,8 @@ type Extension struct {
 	Context *cli.Context
 }
 
-func Default() Extension {
-	return Extension{
+func Default() *Extension {
+	return &Extension{
 		Path:    "./",
 		Context: nil,
 	}
