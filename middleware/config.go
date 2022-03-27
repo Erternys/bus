@@ -37,6 +37,7 @@ func ReadConfigFile(c *cli.Context, next func()) {
 		syscall.Exit(1)
 	}
 
+	c.State["filepath"] = configFilePath
 	c.State["config"] = data
 	next()
 }

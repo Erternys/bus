@@ -21,6 +21,8 @@ func DefaultNodeJS() *NodeJSExtension {
 	}
 }
 
+func (e *NodeJSExtension) Init(name, dir string) {}
+
 func (e *NodeJSExtension) GetConfigPath() string {
 	config, _ := filepath.Abs(e.Path + string(os.PathSeparator) + "package.json")
 	return config

@@ -4,7 +4,12 @@ import (
 	"bus/cli"
 	"bus/middleware"
 	"fmt"
+	"io/ioutil"
 	"os"
+	"path"
+	"sort"
+	"strings"
+	"syscall"
 
 	"gopkg.in/yaml.v3"
 )
@@ -21,12 +26,11 @@ func main() {
 		Name:         "init",
 		RequiredArgs: 1,
 		Handle: func(c *cli.Context, _ error) {
+			filename := c.GetFlag("config", "bus-ws.config.yaml").Value.(string)
+			_, err := os.Stat(filename)
 			if len(c.Args) == 0 || c.Args[0] == "repo" {
-				path := c.GetFlag("config", "bus-ws.config.yaml").Value.(string)
-				_, err := os.Stat(path)
-
 				if os.IsNotExist(err) {
-					fmt.Println("Press ^C (Ctrl+C) at any time to quit.")
+					fmt.Println("Press ^C (Ctrl+C) at any time to quit.\n")
 
 					currentDir := getwd()
 
@@ -48,12 +52,55 @@ func main() {
 						PackagesPath: make([]*middleware.Package, 0),
 					})
 
-					file, _ := os.Create(path)
+					file, _ := os.Create(filename)
 					defer file.Close()
 
 					file.Write(content)
 				}
+				return
 			}
+			c.Execs(middleware.ReadConfigFile)
+
+			dir := path.Clean(c.Args[0])
+			err = os.MkdirAll(dir, 0750)
+			if err != nil {
+				if strings.Contains(dir, "/") {
+					fmt.Println("the folders do not have a correct name")
+				} else {
+					fmt.Println("the folder does not have a correct name")
+				}
+				syscall.Exit(1)
+			}
+			os.Chdir(dir)
+
+			extension := middleware.Extensions["default"]
+			currentDir := getwd()
+			name := input(fmt.Sprintf("sub-project name: (%v) ", currentDir), currentDir)
+			extend := input(fmt.Sprintf("sub-project type: (%v) ", "default"), "default")
+			for ok := true; !ok; extension, ok = middleware.Extensions[extend] {
+				fmt.Printf("invalid value: `%v`\n", extend)
+				extend = input(fmt.Sprintf("sub-project type: (%v) ", "default"), "default")
+			}
+			extension.Init(name, dir)
+			config := c.State["config"].(middleware.Config)
+			config.PackagesPath = append(config.PackagesPath, &middleware.Package{
+				Path:   dir,
+				Extend: extend,
+			})
+			sort.Slice(config.PackagesPath, func(i, j int) bool {
+				return config.PackagesPath[i].Path < config.PackagesPath[j].Path
+			})
+
+			dirs := strings.Split(dir, "/")
+			for i := range dirs {
+				dirs[i] = ".."
+			}
+
+			os.Chdir(strings.Join(dirs, "/"))
+
+			data, _ := yaml.Marshal(config)
+
+			ioutil.WriteFile(c.State["filepath"].(string), data, 0644)
 		},
 	})
 	app.AddCommand(cli.Command{

@@ -6,21 +6,22 @@ import (
 )
 
 type Extension interface {
+	Init(name, dir string)
 	SetContext(c *cli.Context)
 	GetConfigPath() string
 	ParseConfig() map[string]extension.Any
 }
 
-var extensions = map[string]Extension{
+var Extensions = map[string]Extension{
 	"nodejs":  extension.DefaultNodeJS(),
 	"default": extension.Default(),
 }
 
 func (p *Package) GetExtention(c *cli.Context) Extension {
-	for key, value := range extensions {
+	for key, value := range Extensions {
 		if key == p.Extend {
 			return value
 		}
 	}
-	return extensions["default"]
+	return Extensions["default"]
 }
