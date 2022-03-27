@@ -3,6 +3,7 @@ package process
 import (
 	"bus/buffer"
 	"errors"
+	"os"
 	"strings"
 )
 
@@ -21,6 +22,7 @@ type Process struct {
 func NewProcess(name string, command string) Process {
 	processBuffer := buffer.NewBuffer(name)
 	processErrBuffer := buffer.NewBuffer(name + ":error")
+	processErrBuffer.Output = os.Stderr
 
 	return Process{
 		Pid:           -1,
@@ -33,6 +35,12 @@ func NewProcess(name string, command string) Process {
 		Stdout: &processBuffer,
 		Stderr: &processErrBuffer,
 	}
+}
+
+func (p *Process) UseStandardIO() {
+	p.Stdin = os.Stdin
+	p.Stdout = os.Stdout
+	p.Stderr = os.Stderr
 }
 
 func (p *Process) Create() {
