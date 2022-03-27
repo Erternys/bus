@@ -1,6 +1,7 @@
 package extension
 
 import (
+	"bus/process"
 	"encoding/json"
 	"fmt"
 	"os"
@@ -21,7 +22,12 @@ func DefaultNodeJS() *NodeJSExtension {
 	}
 }
 
-func (e *NodeJSExtension) Init(name, dir string) {}
+func (e *NodeJSExtension) Init(name, dir string) {
+	proc := process.NewProcess("npm init project", "npm init")
+	proc.UseStandardIO()
+	proc.Run()
+	proc.Wait()
+}
 
 func (e *NodeJSExtension) GetConfigPath() string {
 	config, _ := filepath.Abs(e.Path + string(os.PathSeparator) + "package.json")

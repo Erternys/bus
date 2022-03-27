@@ -100,7 +100,7 @@ func main() {
 
 			data, _ := yaml.Marshal(config)
 
-			ioutil.WriteFile(c.State["filepath"].(string), data, 0644)
+			ioutil.WriteFile(filename, data, 0644)
 		},
 	})
 	app.AddCommand(cli.Command{

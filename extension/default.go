@@ -31,7 +31,7 @@ func (e *Extension) SetContext(c *cli.Context) {
 func (e *Extension) Init(name, dir string) {}
 
 func (e *Extension) GetConfigPath() string {
-	configFileName := e.Context.GetFlag("config", "bus-ws.config.yaml").Value.(string)
+	configFileName := e.Context.State["filepath"].(string)
 	config, _ := filepath.Abs(e.Path + string(os.PathSeparator) + configFileName)
 	return config
 }
