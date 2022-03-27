@@ -1,4 +1,4 @@
-package main
+package helper
 
 import (
 	"bufio"
@@ -9,7 +9,7 @@ import (
 	"unicode"
 )
 
-func input(prompt string, defaultValue string) string {
+func Input(prompt string, defaultValue string) string {
 	fmt.Print(prompt)
 
 	value, _ := bufio.NewReader(os.Stdin).ReadString('\n')
@@ -21,14 +21,14 @@ func input(prompt string, defaultValue string) string {
 	return value
 }
 
-func getwd() string {
+func Getwd() string {
 	pwd, _ := os.Getwd()
 	arrPwd := strings.Split(pwd, string(os.PathSeparator))
 
 	return arrPwd[len(arrPwd)-1]
 }
 
-func getRepository() string {
+func GetRepository() string {
 	out, _ := exec.Command("git", "config", "--get", "remote.origin.url").Output()
 
 	return strings.TrimFunc(string(out), unicode.IsSpace)

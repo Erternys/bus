@@ -19,12 +19,12 @@ type Process struct {
 	commandString string
 }
 
-func NewProcess(name string, command string) Process {
+func NewProcess(name string, command string) *Process {
 	processBuffer := buffer.NewBuffer(name)
 	processErrBuffer := buffer.NewBuffer(name + ":error")
 	processErrBuffer.Output = os.Stderr
 
-	return Process{
+	return &Process{
 		Pid:           -1,
 		Daemon:        false,
 		name:          name,

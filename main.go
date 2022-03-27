@@ -2,6 +2,7 @@ package main
 
 import (
 	"bus/cli"
+	"bus/helper"
 	"bus/middleware"
 	"fmt"
 	"io/ioutil"
@@ -33,16 +34,17 @@ func main() {
 				if os.IsNotExist(err) {
 					fmt.Println("Press ^C (Ctrl+C) at any time to quit.\n")
 
-					currentDir := getwd()
+					currentDir := helper.Getwd()
 
-					name := input(fmt.Sprintf("project name: (%v) ", currentDir), currentDir)
-					version := input(fmt.Sprintf("version: (%v) ", "1.0.0"), "1.0.0")
-					description := input("description: ", "")
-					repository := ""
-					if getRepository() == "" {
-						repository = input("git repository: ", "")
+					name := helper.Input(fmt.Sprintf("project name: (%v) ", currentDir), currentDir)
+					version := helper.Input(fmt.Sprintf("version: (%v) ", "1.0.0"), "1.0.0")
+					description := helper.Input("description: ", "")
+					repository := helper.GetRepository()
+
+					if repository == "" {
+						repository = helper.Input("git repository: ", "")
 					} else {
-						repository = input(fmt.Sprintf("git repository: (%v) ", getRepository()), getRepository())
+						repository = helper.Input(fmt.Sprintf("git repository: (%v) ", repository), repository)
 					}
 
 					content, _ := yaml.Marshal(middleware.Config{
@@ -83,14 +85,14 @@ func main() {
 			}
 			os.Chdir(dir)
 
-			currentDir := getwd()
-			name := input(fmt.Sprintf("sub-package name: (%v) ", currentDir), currentDir)
-			extend := input(fmt.Sprintf("sub-package type: (%v) ", "default"), "default")
+			currentDir := helper.Getwd()
+			name := helper.Input(fmt.Sprintf("sub-package name: (%v) ", currentDir), currentDir)
+			extend := helper.Input(fmt.Sprintf("sub-package type: (%v) ", "default"), "default")
 
 			extension, ok := middleware.Extensions[extend]
 			for ; !ok; extension, ok = middleware.Extensions[extend] {
 				fmt.Printf("invalid value: `%v`\n", extend)
-				extend = input(fmt.Sprintf("sub-package type: (%v) ", "default"), "default")
+				extend = helper.Input(fmt.Sprintf("sub-package type: (%v) ", "default"), "default")
 			}
 
 			extension.SetContext(c)

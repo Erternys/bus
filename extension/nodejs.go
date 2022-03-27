@@ -1,6 +1,7 @@
 package extension
 
 import (
+	"bus/helper"
 	"bus/process"
 	"encoding/json"
 	"fmt"
@@ -25,9 +26,21 @@ func DefaultNodeJS() *NodeJSExtension {
 func (e *NodeJSExtension) Init(name, dir string) {
 	fmt.Println("")
 
-	npm := e.Context.GetFlag("use", "npm")
+	kit := ""
+	kitFlag := e.Context.GetFlag("kit", kit)
+	if kitFlag.Value == "" {
+		kit = helper.Input("kit: ", kit)
+	}
 
-	proc := process.NewProcess("npm init project", fmt.Sprintf("%v init", npm.Value))
+	npm := e.Context.GetFlag("use", "npm")
+	var proc *process.Process = nil
+
+	if kit != "" {
+		proc = process.NewProcess("npm create project with kit", fmt.Sprintf("%v create %v ./", npm.Value, kit))
+	} else {
+		proc = process.NewProcess("npm init project", fmt.Sprintf("%v init", npm.Value))
+	}
+
 	proc.UseStandardIO()
 	proc.Run()
 	proc.Wait()
