@@ -65,6 +65,9 @@ func (b *Buffer) Close(p []byte) error {
 	if o, ok := b.Output.(io.Closer); ok {
 		o.Close()
 	}
+	if i, ok := b.Input.(io.Closer); ok {
+		i.Close()
+	}
 	b.close = true
 	return nil
 }
