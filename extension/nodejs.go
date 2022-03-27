@@ -23,7 +23,11 @@ func DefaultNodeJS() *NodeJSExtension {
 }
 
 func (e *NodeJSExtension) Init(name, dir string) {
-	proc := process.NewProcess("npm init project", "npm init")
+	fmt.Println("")
+
+	npm := e.Context.GetFlag("use", "npm")
+
+	proc := process.NewProcess("npm init project", fmt.Sprintf("%v init", npm.Value))
 	proc.UseStandardIO()
 	proc.Run()
 	proc.Wait()

@@ -22,6 +22,7 @@ var app = cli.NewApp(
 
 func main() {
 	app.AddFlag(cli.NewFlag("config", "Change the config file used (by default: bus-ws.config.yaml)", cli.String, "c"))
+	app.AddFlag(cli.NewFlag("use", "Set the JavaScript package manager (by default: npm)", cli.String))
 	app.AddCommand(cli.Command{
 		Name:         "init",
 		RequiredArgs: 1,
@@ -60,8 +61,17 @@ func main() {
 				return
 			}
 			c.Execs(middleware.ReadConfigFile)
+			config := c.State["config"].(middleware.Config)
 
 			dir := path.Clean(c.Args[0])
+
+			for _, p := range config.PackagesPath {
+				if p.Path == dir {
+					fmt.Printf("the package `%v` already exist\n", dir)
+					syscall.Exit(0)
+				}
+			}
+
 			err = os.MkdirAll(dir, 0750)
 			if err != nil {
 				if strings.Contains(dir, "/") {
@@ -73,16 +83,18 @@ func main() {
 			}
 			os.Chdir(dir)
 
-			extension := middleware.Extensions["default"]
 			currentDir := getwd()
-			name := input(fmt.Sprintf("sub-project name: (%v) ", currentDir), currentDir)
-			extend := input(fmt.Sprintf("sub-project type: (%v) ", "default"), "default")
-			for ok := true; !ok; extension, ok = middleware.Extensions[extend] {
+			name := input(fmt.Sprintf("sub-package name: (%v) ", currentDir), currentDir)
+			extend := input(fmt.Sprintf("sub-package type: (%v) ", "default"), "default")
+
+			extension, ok := middleware.Extensions[extend]
+			for ; !ok; extension, ok = middleware.Extensions[extend] {
 				fmt.Printf("invalid value: `%v`\n", extend)
-				extend = input(fmt.Sprintf("sub-project type: (%v) ", "default"), "default")
+				extend = input(fmt.Sprintf("sub-package type: (%v) ", "default"), "default")
 			}
+
+			extension.SetContext(c)
 			extension.Init(name, dir)
-			config := c.State["config"].(middleware.Config)
 			config.PackagesPath = append(config.PackagesPath, &middleware.Package{
 				Path:   dir,
 				Extend: extend,
