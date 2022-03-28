@@ -22,6 +22,22 @@ func NewContext(app *CliApp) *Context {
 	}
 }
 
+func (c *Context) StateExist(name string) bool {
+	_, ok := c.Flags[name]
+	return ok
+}
+
+func (c *Context) GetState(name string, defaultValue Any) Any {
+	if c.StateExist(name) {
+		return defaultValue
+	}
+	return c.State[name]
+}
+
+func (c *Context) SetState(name string, value Any) {
+	c.State[name] = value
+}
+
 func (c *Context) FlagExist(name string) bool {
 	_, ok := c.Flags[name]
 	return ok

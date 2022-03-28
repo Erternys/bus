@@ -40,7 +40,11 @@ func (b *Buffer) Write(p []byte) (int, error) {
 	if b.close {
 		return 0, errors.New("you can't write want the buffer is closed")
 	}
+	NewLine := []byte("\n")
 	splited := bytes.Split(p, NewLine)
+	for _, split := range splited {
+		bytes.Trim(split, "\r")
+	}
 	for i := 0; i < len(splited)-1; i++ {
 		line := splited[i]
 		b.Output.WriteString(fmt.Sprintf(b.beforeLine, b.name))

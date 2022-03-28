@@ -55,15 +55,12 @@ func main() {
 						PackagesPath: make([]*middleware.Package, 0),
 					})
 
-					file, _ := os.Create(filename)
-					defer file.Close()
-
-					file.Write(content)
+					ioutil.WriteFile(filename, content, 0644)
 				}
 				return
 			}
 			c.Execs(middleware.ReadConfigFile)
-			config := c.State["config"].(middleware.Config)
+			config := c.GetState("config", nil).(middleware.Config)
 
 			dir := path.Clean(c.Args[0])
 

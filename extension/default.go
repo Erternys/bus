@@ -2,7 +2,9 @@ package extension
 
 import (
 	"bus/cli"
+	"bus/helper"
 	"fmt"
+	"io/ioutil"
 	"os"
 	"path/filepath"
 	"syscall"
@@ -28,10 +30,34 @@ func (e *Extension) SetContext(c *cli.Context) {
 	e.Context = c
 }
 
-func (e *Extension) Init(name, dir string) {}
+func (e *Extension) Init(name, dir string) {
+	filename := e.Context.GetFlag("config", "bus-ws.config.yaml").Value.(string)
+
+	version := helper.Input(fmt.Sprintf("version: (%v) ", "1.0.0"), "1.0.0")
+	description := helper.Input("description: ", "")
+	scripts := make(map[string]string)
+	for {
+		sname := helper.Input("script name: ", "")
+		if sname == "" {
+			break
+		}
+		scripts[sname] = helper.Input("script command: ", "")
+	}
+	license := helper.Input(fmt.Sprintf("license: (%v) ", "ISC"), "ISC")
+
+	content, _ := yaml.Marshal(map[string]Any{
+		"name":        name,
+		"version":     version,
+		"description": description,
+		"scripts":     scripts,
+		"license":     license,
+	})
+
+	ioutil.WriteFile(filename, content, 0644)
+}
 
 func (e *Extension) GetConfigPath() string {
-	configFileName := e.Context.State["filepath"].(string)
+	configFileName := e.Context.GetState("filepath", "./").(string)
 	config, _ := filepath.Abs(e.Path + string(os.PathSeparator) + configFileName)
 	return config
 }
