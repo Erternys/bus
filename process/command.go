@@ -7,6 +7,7 @@ import (
 )
 
 type Command struct {
+	Path   string
 	Stdin  buffer.Reader
 	Stdout buffer.Writer
 	Stderr buffer.Writer
@@ -19,6 +20,7 @@ type Command struct {
 
 func (c *Command) Start() error {
 	c.current = exec.Command(c.value[0], c.value[1:]...)
+	c.current.Dir = c.Path
 	c.current.Stdin = c.Stdin
 	c.current.Stdout = c.Stdout
 	c.current.Stderr = c.Stderr

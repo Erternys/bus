@@ -8,6 +8,7 @@ import (
 )
 
 type Process struct {
+	Path   string
 	Pid    int
 	Daemon bool
 	Stdin  buffer.Reader
@@ -25,6 +26,7 @@ func NewProcess(name string, command string) *Process {
 	processErrBuffer.Output = os.Stderr
 
 	return &Process{
+		Path:          "",
 		Pid:           -1,
 		Daemon:        false,
 		name:          name,
@@ -45,10 +47,12 @@ func (p *Process) UseStandardIO() {
 
 func (p *Process) Create() {
 	p.cmd = &Command{
-		value:  strings.Split(p.commandString, " "),
+		Path:   p.Path,
 		Stdin:  p.Stdin,
 		Stdout: p.Stdout,
 		Stderr: p.Stderr,
+
+		value: strings.Split(p.commandString, " "),
 	}
 }
 

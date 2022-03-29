@@ -5,9 +5,12 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"reflect"
 	"strings"
 	"unicode"
 )
+
+var WorkSpacePath, _ = os.Getwd()
 
 func Input(prompt string, defaultValue string) string {
 	fmt.Print(prompt)
@@ -32,4 +35,18 @@ func GetRepository() string {
 	out, _ := exec.Command("git", "config", "--get", "remote.origin.url").Output()
 
 	return strings.TrimFunc(string(out), unicode.IsSpace)
+}
+
+func InArray(val interface{}, array interface{}) bool {
+	values := reflect.ValueOf(array)
+
+	if reflect.TypeOf(array).Kind() == reflect.Slice || values.Len() > 0 {
+		for i := 0; i < values.Len(); i++ {
+			if reflect.DeepEqual(val, values.Index(i).Interface()) {
+				return true
+			}
+		}
+	}
+
+	return false
 }

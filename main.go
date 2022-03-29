@@ -4,13 +4,14 @@ import (
 	"bus/cli"
 	"bus/helper"
 	"bus/middleware"
-	"bus/process"
+	"bus/script"
 	"fmt"
 	"io/ioutil"
 	"os"
 	"path"
 	"sort"
 	"strings"
+	"sync"
 	"syscall"
 
 	"gopkg.in/yaml.v3"
@@ -22,18 +23,7 @@ var app = cli.NewApp(
 	"0.1.0-beta",
 )
 
-func startBackgroundProcess(name, cmd string, c chan bool) {
-	p := process.NewProcess(name, cmd)
-	p.Daemon = true
-	err := p.Run()
-	if err != nil {
-		c <- true
-		return
-	}
-	err = p.Wait()
-
-	c <- err == nil
-}
+var wg sync.WaitGroup
 
 func main() {
 	app.AddFlag(cli.NewFlag("config", "Change the config file used (by default: bus-ws.config.yaml)", cli.String, "c"))
@@ -143,29 +133,36 @@ func main() {
 			config := c.GetState("config", nil).(middleware.Config)
 
 			from := "*"
-			script := ""
+			scriptName := ""
 			if strings.Contains(c.Args[0], "@") {
 				a := strings.Split(c.Args[0], "@")
 				from = a[0]
-				script = a[1]
+				scriptName = a[1]
 			} else {
-				script = c.Args[0]
+				scriptName = c.Args[0]
 			}
-
-			ch := make(chan bool)
 
 			for _, packagePath := range config.PackagesPath {
 				if from == "*" || packagePath.Name == from {
-					scripts := packagePath.GetExtention(c).ParseConfig()["scripts"].(map[string]string)
-					cmd, ok := scripts[script]
+					config := packagePath.GetExtention(c).ParseConfig()
+					scripts := config["scripts"].(map[string]interface{})
+					cmd, ok := scripts[scriptName].(string)
+					if packagePath.Extend == "nodejs" {
+						kit := "npm"
+						cmd = fmt.Sprintf("%v run %v", kit, scriptName)
+					}
 
 					if !ok {
 						continue
 					}
 
-					go startBackgroundProcess(script, cmd, ch)
+					wg.Add(1)
+					s := script.NewScript(packagePath, path.Join(helper.WorkSpacePath, packagePath.Path), cmd)
+					go s.Start(wg.Done)
 				}
 			}
+
+			wg.Wait()
 		},
 	})
 

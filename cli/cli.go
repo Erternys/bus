@@ -1,9 +1,9 @@
 package cli
 
 import (
+	"bus/helper"
 	"errors"
 	"fmt"
-	"reflect"
 	"strings"
 )
 
@@ -16,20 +16,6 @@ type CliApp struct {
 	args           []string
 	commands       []Command
 	flags          []Flag
-}
-
-func inArray(val interface{}, array interface{}) bool {
-	values := reflect.ValueOf(array)
-
-	if reflect.TypeOf(array).Kind() == reflect.Slice || values.Len() > 0 {
-		for i := 0; i < values.Len(); i++ {
-			if reflect.DeepEqual(val, values.Index(i).Interface()) {
-				return true
-			}
-		}
-	}
-
-	return false
 }
 
 func NewApp(name string, description string, version string) CliApp {
@@ -62,14 +48,14 @@ func (c *CliApp) Run(args []string) error {
 			arg = strings.TrimLeft(arg, "-")
 			currentFlag := DefaultFlag()
 			for _, flag := range c.flags {
-				if flag.Name == arg || inArray(arg, flag.Aliases) {
+				if flag.Name == arg || helper.InArray(arg, flag.Aliases) {
 					currentFlag = flag.clone()
 					break
 				}
 			}
 			if currentFlag.Name == "" {
 				for _, command := range c.commands {
-					if inArray(arg, command.FlagAliases) {
+					if helper.InArray(arg, command.FlagAliases) {
 						if currentCommand != nil {
 							context.Args = append(context.Args, currentCommand.Name)
 						}
@@ -121,7 +107,7 @@ func (c *CliApp) Run(args []string) error {
 		}
 		if currentCommand == nil {
 			for _, command := range c.commands {
-				if command.Name == arg || inArray(arg, command.Aliases) {
+				if command.Name == arg || helper.InArray(arg, command.Aliases) {
 					currentCommand = &command
 					break
 				}
