@@ -5,6 +5,7 @@ import (
 	"bus/process"
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"os"
 	"path/filepath"
 	"syscall"
@@ -51,12 +52,21 @@ func (e *NodeJSExtension) GetConfigPath() string {
 	return config
 }
 
-func (e *NodeJSExtension) ParseConfig() map[string]Any {
-	data := make(map[string]Any)
-	err := json.Unmarshal([]byte(e.GetConfigPath()), &data)
+func (e *NodeJSExtension) ParseConfig() map[string]interface{} {
+	data := make(map[string]interface{})
+	content, err := ioutil.ReadFile(e.GetConfigPath())
+	if err != nil {
+		fmt.Println("the config file was remove")
+		syscall.Exit(1)
+	}
+	err = json.Unmarshal(content, &data)
 	if err != nil {
 		fmt.Println("the config file does not correct")
 		syscall.Exit(1)
 	}
 	return data
+}
+
+func (e *NodeJSExtension) Clone() interface{} {
+	return DefaultNodeJS()
 }

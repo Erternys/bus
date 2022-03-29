@@ -8,8 +8,11 @@ import (
 type Extension interface {
 	Init(name, dir string)
 	SetContext(c *cli.Context)
+	SetPath(p string)
 	GetConfigPath() string
-	ParseConfig() map[string]extension.Any
+	ParseConfig() map[string]interface{}
+
+	Clone() interface{}
 }
 
 var Extensions = map[string]Extension{
@@ -20,7 +23,10 @@ var Extensions = map[string]Extension{
 func (p *Package) GetExtention(c *cli.Context) Extension {
 	for key, value := range Extensions {
 		if key == p.Extend {
-			return value
+			extension := value.Clone().(Extension)
+			extension.SetContext(c)
+			extension.SetPath(p.Path)
+			return extension
 		}
 	}
 	return Extensions["default"]

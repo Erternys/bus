@@ -3,14 +3,13 @@ package cli
 import "fmt"
 
 type HandleExec func(c *Context, next func())
-type Any interface{}
 
 type Context struct {
 	App *CliApp
 
 	Args  []string
 	Flags map[string]Flag
-	State map[string]Any
+	State map[string]interface{}
 }
 
 func NewContext(app *CliApp) *Context {
@@ -18,7 +17,7 @@ func NewContext(app *CliApp) *Context {
 		App:   app,
 		Args:  []string{},
 		Flags: map[string]Flag{},
-		State: map[string]Any{},
+		State: map[string]interface{}{},
 	}
 }
 
@@ -27,14 +26,14 @@ func (c *Context) StateExist(name string) bool {
 	return ok
 }
 
-func (c *Context) GetState(name string, defaultValue Any) Any {
+func (c *Context) GetState(name string, defaultValue interface{}) interface{} {
 	if c.StateExist(name) {
 		return defaultValue
 	}
 	return c.State[name]
 }
 
-func (c *Context) SetState(name string, value Any) {
+func (c *Context) SetState(name string, value interface{}) {
 	c.State[name] = value
 }
 
@@ -43,7 +42,7 @@ func (c *Context) FlagExist(name string) bool {
 	return ok
 }
 
-func (c *Context) GetFlag(name string, defaultValue Any) Flag {
+func (c *Context) GetFlag(name string, defaultValue interface{}) Flag {
 	if c.FlagExist(name) {
 		return c.Flags[name]
 	}

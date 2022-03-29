@@ -3,6 +3,8 @@ package extension
 import (
 	"bus/cli"
 	"bus/helper"
+
+	// "bus/middleware"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -11,8 +13,6 @@ import (
 
 	"gopkg.in/yaml.v3"
 )
-
-type Any interface{}
 
 type Extension struct {
 	Path    string
@@ -30,6 +30,10 @@ func (e *Extension) SetContext(c *cli.Context) {
 	e.Context = c
 }
 
+func (e *Extension) SetPath(p string) {
+	e.Path = p
+}
+
 func (e *Extension) Init(name, dir string) {
 	filename := e.Context.GetFlag("config", "bus-ws.config.yaml").Value.(string)
 
@@ -45,7 +49,7 @@ func (e *Extension) Init(name, dir string) {
 	}
 	license := helper.Input(fmt.Sprintf("license: (%v) ", "ISC"), "ISC")
 
-	content, _ := yaml.Marshal(map[string]Any{
+	content, _ := yaml.Marshal(map[string]interface{}{
 		"name":        name,
 		"version":     version,
 		"description": description,
@@ -62,12 +66,21 @@ func (e *Extension) GetConfigPath() string {
 	return config
 }
 
-func (e *Extension) ParseConfig() map[string]Any {
-	data := make(map[string]Any)
-	err := yaml.Unmarshal([]byte(e.GetConfigPath()), &data)
+func (e *Extension) ParseConfig() map[string]interface{} {
+	data := make(map[string]interface{})
+	content, err := ioutil.ReadFile(e.GetConfigPath())
+	if err != nil {
+		fmt.Println("the config file was remove")
+		syscall.Exit(1)
+	}
+	err = yaml.Unmarshal(content, &data)
 	if err != nil {
 		fmt.Println("the config file does not correct")
 		syscall.Exit(1)
 	}
 	return data
+}
+
+func (e *Extension) Clone() interface{} {
+	return Default()
 }

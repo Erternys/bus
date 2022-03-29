@@ -11,6 +11,7 @@ import (
 
 type Package struct {
 	Path   string
+	Name   string
 	Extend string
 }
 

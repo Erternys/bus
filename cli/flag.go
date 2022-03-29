@@ -47,7 +47,7 @@ func (f *Flag) setValueAndKind(value string) {
 		f.Kind = Bool
 	default:
 		var err error = nil
-		var n Any = nil
+		var n interface{} = nil
 		if strings.Contains(value, ".") {
 			n, err = strconv.ParseFloat(value, 64)
 			f.Kind = Float
