@@ -53,6 +53,15 @@ func (c *CliApp) Run(args []string) error {
 					break
 				}
 			}
+			if currentCommand != nil {
+				for _, flag := range currentCommand.Flags {
+					if flag.Name == arg || helper.InArray(arg, flag.Aliases) {
+						currentFlag = flag.clone()
+						break
+					}
+				}
+			}
+
 			if currentFlag.Name == "" {
 				for _, command := range c.commands {
 					if helper.InArray(arg, command.FlagAliases) {
@@ -98,7 +107,9 @@ func (c *CliApp) Run(args []string) error {
 				}
 				i++
 			} else {
-				currentFlag.Name = arg
+				if currentFlag.Name == "" {
+					currentFlag.Name = arg
+				}
 				currentFlag.Kind = Bool
 				currentFlag.Value = true
 			}

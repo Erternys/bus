@@ -10,11 +10,16 @@ type HandleAction func(c *Context, err error)
 
 type Command struct {
 	Name         string
+	Flags        []Flag
 	Aliases      []string
 	FlagAliases  []string
 	Description  string
 	RequiredArgs int
 	Handle       HandleAction
+}
+
+func (c *Command) AddFlag(flag Flag) {
+	c.Flags = append(c.Flags, flag)
 }
 
 func (c *CliApp) SetHelpCommand() {
