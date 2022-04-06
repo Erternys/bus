@@ -123,13 +123,18 @@ func main() {
 		Name:         "run",
 		Aliases:      []string{"r"},
 		RequiredArgs: 1,
+		Flags: []cli.Flag{
+			cli.NewFlag("background", "run command(s) in background (by default: false)", cli.Bool, "bg", "b"),
+		},
 		Handle: func(c *cli.Context, _ error) {
 			c.Execs(middleware.ReadConfigFile)
 
 			if len(c.Args) == 0 {
-				syscall.Exit(0)
+				fmt.Println("Please give a script to execute `script_name` or `process@script_name`")
+				syscall.Exit(1)
 			}
 
+			background := c.GetFlag("background", false).Value.(bool)
 			config := c.GetState("config", nil).(middleware.Config)
 
 			from := "*"
@@ -156,13 +161,17 @@ func main() {
 						continue
 					}
 
-					wg.Add(1)
 					s := script.NewScript(packagePath, path.Join(helper.WorkSpacePath, packagePath.Path), cmd)
+					if !background {
+						wg.Add(1)
+					}
 					go s.Start(wg.Done)
 				}
 			}
 
-			wg.Wait()
+			if !background {
+				wg.Wait()
+			}
 		},
 	})
 
