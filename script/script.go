@@ -15,6 +15,7 @@ type Script struct {
 
 func NewScript(pathConfig *middleware.Package, absPath, cmd string) *Script {
 	p := process.NewProcess(pathConfig.Name, cmd)
+	p.UseStandardIO()
 	p.Daemon = true
 	p.Path = absPath
 
