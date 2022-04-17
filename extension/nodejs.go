@@ -53,6 +53,16 @@ func (e *NodeJSExtension) Init(name, dir string) {
 	proc.Wait()
 }
 
+func (e *NodeJSExtension) InstallDep() {
+	fmt.Printf("%vInstalling %v dependencies%v\n", helper.Blue, e.Path, helper.Reset)
+
+	config := e.Context.GetState("config", nil).(contextConfig)
+	p := process.NewProcess("npm install", fmt.Sprintf("%v install", config.Manager))
+	p.UseStandardIO()
+	p.Run()
+	p.Wait()
+}
+
 func (e *NodeJSExtension) GetConfigPath() string {
 	config, _ := filepath.Abs(e.Path + string(os.PathSeparator) + "package.json")
 	return config

@@ -7,6 +7,7 @@ import (
 
 type Extension interface {
 	Init(name, dir string)
+	InstallDep()
 	SetContext(c *cli.Context)
 	SetPath(p string)
 	GetConfigPath() string

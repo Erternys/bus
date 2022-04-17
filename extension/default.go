@@ -60,6 +60,10 @@ func (e *Extension) Init(name, dir string) {
 	ioutil.WriteFile(filename, content, 0644)
 }
 
+func (e *Extension) InstallDep() {
+	fmt.Printf("%v%v has no dependency manager%v\n", helper.Red, e.Path, helper.Reset)
+}
+
 func (e *Extension) GetConfigPath() string {
 	configFileName := e.Context.GetState("filepath", "./").(string)
 	config, _ := filepath.Abs(e.Path + string(os.PathSeparator) + configFileName)
