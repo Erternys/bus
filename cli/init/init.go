@@ -44,6 +44,7 @@ func NewInitCommand() cli.Command {
 						Version:      version,
 						Description:  description,
 						Repository:   repository,
+						Manager:      "npm",
 						PackagesPath: make([]*middleware.Package, 0),
 					})
 

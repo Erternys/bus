@@ -20,6 +20,7 @@ type Config struct {
 	Version      string
 	Description  string
 	Repository   string
+	Manager      string
 	PackagesPath []*Package `yaml:"packages"`
 }
 

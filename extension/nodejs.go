@@ -11,6 +11,10 @@ import (
 	"syscall"
 )
 
+type contextConfig struct {
+	Manager string
+}
+
 type NodeJSExtension struct {
 	*Extension
 }
@@ -27,19 +31,21 @@ func DefaultNodeJS() *NodeJSExtension {
 func (e *NodeJSExtension) Init(name, dir string) {
 	fmt.Println("")
 
+	config := e.Context.GetState("config", nil).(contextConfig)
+
 	kit := ""
 	kitFlag := e.Context.GetFlag("kit", kit)
 	if kitFlag.Value == "" {
 		kit = helper.Input("kit: ", kit)
 	}
 
-	npm := e.Context.GetFlag("use", "npm")
+	use := config.Manager
 	var proc *process.Process = nil
 
 	if kit != "" {
-		proc = process.NewProcess("npm create project with kit", fmt.Sprintf("%v create %v ./", npm.Value, kit))
+		proc = process.NewProcess("npm create project with kit", fmt.Sprintf("%v create %v ./", use, kit))
 	} else {
-		proc = process.NewProcess("npm init project", fmt.Sprintf("%v init", npm.Value))
+		proc = process.NewProcess("npm init project", fmt.Sprintf("%v init", use))
 	}
 
 	proc.UseStandardIO()

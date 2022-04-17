@@ -15,7 +15,6 @@ var app = cli.NewApp(
 
 func main() {
 	app.AddFlag(cli.NewFlag("config", "Change the config file used (by default: bus-ws.config.yaml)", cli.String, "c"))
-	app.AddFlag(cli.NewFlag("use", "Set the JavaScript package manager (by default: npm)", cli.String))
 	app.AddCommand(init_c.NewInitCommand())
 	app.AddCommand(run.NewRunCommand())
 

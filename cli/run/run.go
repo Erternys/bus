@@ -31,7 +31,7 @@ func NewRunCommand() cli.Command {
 			}
 
 			background := c.GetFlag("background", false).Value.(bool)
-			config := c.GetState("config", nil).(middleware.Config)
+			baseConfig := c.GetState("config", nil).(middleware.Config)
 
 			from := "*"
 			scriptName := ""
@@ -43,14 +43,14 @@ func NewRunCommand() cli.Command {
 				scriptName = c.Args[0]
 			}
 
-			for _, packagePath := range config.PackagesPath {
+			for _, packagePath := range baseConfig.PackagesPath {
 				if from == "*" || packagePath.Name == from {
 					config := packagePath.GetExtention(c).ParseConfig()
 					scripts := config["scripts"].(map[string]interface{})
 					cmd, ok := scripts[scriptName].(string)
 					if packagePath.Extend == "nodejs" {
-						kit := "npm"
-						cmd = fmt.Sprintf("%v run %v", kit, scriptName)
+						manager := baseConfig.Manager
+						cmd = fmt.Sprintf("%v run %v", manager, scriptName)
 					}
 
 					if !ok {
