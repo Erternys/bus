@@ -1,7 +1,7 @@
 package script
 
 import (
-	"bus/middleware"
+	"bus/config"
 	"bus/process"
 	"fmt"
 	"syscall"
@@ -9,11 +9,11 @@ import (
 
 type Script struct {
 	process    *process.Process
-	pathConfig *middleware.Package
+	pathConfig *config.Package
 	cmd        string
 }
 
-func NewScript(pathConfig *middleware.Package, absPath, cmd string) *Script {
+func NewScript(pathConfig *config.Package, absPath, cmd string) *Script {
 	p := process.NewProcess(pathConfig.Name, cmd)
 	p.UseStandardIO()
 	p.Daemon = true

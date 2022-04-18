@@ -2,6 +2,7 @@ package run
 
 import (
 	"bus/cli"
+	"bus/config"
 	"bus/helper"
 	"bus/middleware"
 	"bus/script"
@@ -31,7 +32,7 @@ func NewRunCommand() cli.Command {
 			}
 
 			background := c.GetFlag("background", false).Value.(bool)
-			baseConfig := c.GetState("config", nil).(middleware.Config)
+			baseConfig := c.GetState("config", nil).(config.Config)
 
 			from := "*"
 			scriptName := ""
@@ -45,7 +46,7 @@ func NewRunCommand() cli.Command {
 
 			for _, packagePath := range baseConfig.PackagesPath {
 				if from == "*" || packagePath.Name == from {
-					config := packagePath.GetExtention(c).ParseConfig()
+					config := middleware.GetPackageExtention(packagePath, c).ParseConfig()
 					scripts := config["scripts"].(map[string]interface{})
 					cmd, ok := scripts[scriptName].(string)
 					if packagePath.Extend == "nodejs" {

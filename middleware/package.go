@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"bus/cli"
+	"bus/config"
 	"bus/extension"
 )
 
@@ -21,7 +22,7 @@ var Extensions = map[string]Extension{
 	"default": extension.Default(),
 }
 
-func (p *Package) GetExtention(c *cli.Context) Extension {
+func GetPackageExtention(p *config.Package, c *cli.Context) Extension {
 	for key, value := range Extensions {
 		if key == p.Extend {
 			extension := value.Clone().(Extension)

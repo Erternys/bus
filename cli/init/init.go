@@ -2,6 +2,7 @@ package init
 
 import (
 	"bus/cli"
+	"bus/config"
 	"bus/helper"
 	"bus/middleware"
 	"fmt"
@@ -39,13 +40,13 @@ func NewInitCommand() cli.Command {
 						repository = helper.Input(fmt.Sprintf("git repository: (%v) ", repository), repository)
 					}
 
-					content, _ := yaml.Marshal(middleware.Config{
+					content, _ := yaml.Marshal(config.Config{
 						Name:         name,
 						Version:      version,
 						Description:  description,
 						Repository:   repository,
 						Manager:      "npm",
-						PackagesPath: make([]*middleware.Package, 0),
+						PackagesPath: make([]*config.Package, 0),
 					})
 
 					ioutil.WriteFile(filename, content, 0644)
@@ -53,11 +54,11 @@ func NewInitCommand() cli.Command {
 				return
 			}
 			c.Execs(middleware.ReadConfigFile)
-			config := c.GetState("config", nil).(middleware.Config)
+			baseConfig := c.GetState("config", nil).(config.Config)
 
 			dir := path.Clean(c.Args[0])
 
-			for _, p := range config.PackagesPath {
+			for _, p := range baseConfig.PackagesPath {
 				if p.Path == dir {
 					fmt.Printf("the package `%v` already exist\n", dir)
 					syscall.Exit(0)
@@ -87,13 +88,13 @@ func NewInitCommand() cli.Command {
 
 			extension.SetContext(c)
 			extension.Init(name, dir)
-			config.PackagesPath = append(config.PackagesPath, &middleware.Package{
+			baseConfig.PackagesPath = append(baseConfig.PackagesPath, &config.Package{
 				Path:   dir,
 				Name:   name,
 				Extend: extend,
 			})
-			sort.Slice(config.PackagesPath, func(i, j int) bool {
-				return config.PackagesPath[i].Path < config.PackagesPath[j].Path
+			sort.Slice(baseConfig.PackagesPath, func(i, j int) bool {
+				return baseConfig.PackagesPath[i].Path < baseConfig.PackagesPath[j].Path
 			})
 
 			dirs := strings.Split(dir, "/")
@@ -103,7 +104,7 @@ func NewInitCommand() cli.Command {
 
 			os.Chdir(strings.Join(dirs, "/"))
 
-			data, _ := yaml.Marshal(config)
+			data, _ := yaml.Marshal(baseConfig)
 
 			ioutil.WriteFile(filename, data, 0644)
 		},

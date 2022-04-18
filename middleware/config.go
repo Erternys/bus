@@ -2,27 +2,13 @@ package middleware
 
 import (
 	"bus/cli"
+	"bus/config"
 	"fmt"
 	"io/ioutil"
 	"syscall"
 
 	"gopkg.in/yaml.v3"
 )
-
-type Package struct {
-	Path   string
-	Name   string
-	Extend string
-}
-
-type Config struct {
-	Name         string
-	Version      string
-	Description  string
-	Repository   string
-	Manager      string
-	PackagesPath []*Package `yaml:"packages"`
-}
 
 func ReadConfigFile(c *cli.Context, next func()) {
 	configFilePath := c.GetFlag("config", "bus-ws.config.yaml").Value.(string)
@@ -32,7 +18,7 @@ func ReadConfigFile(c *cli.Context, next func()) {
 		syscall.Exit(1)
 	}
 
-	data := Config{}
+	data := config.Config{}
 	err = yaml.Unmarshal(file, &data)
 	if err != nil {
 		fmt.Println("the config file does not correct")

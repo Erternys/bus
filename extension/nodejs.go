@@ -1,6 +1,7 @@
 package extension
 
 import (
+	"bus/config"
 	"bus/helper"
 	"bus/process"
 	"encoding/json"
@@ -10,10 +11,6 @@ import (
 	"path/filepath"
 	"syscall"
 )
-
-type contextConfig struct {
-	Manager string
-}
 
 type NodeJSExtension struct {
 	*Extension
@@ -31,7 +28,7 @@ func DefaultNodeJS() *NodeJSExtension {
 func (e *NodeJSExtension) Init(name, dir string) {
 	fmt.Println("")
 
-	config := e.Context.GetState("config", nil).(contextConfig)
+	baseConfig := e.Context.GetState("config", nil).(config.Config)
 
 	kit := ""
 	kitFlag := e.Context.GetFlag("kit", kit)
@@ -39,7 +36,7 @@ func (e *NodeJSExtension) Init(name, dir string) {
 		kit = helper.Input("kit: ", kit)
 	}
 
-	use := config.Manager
+	use := baseConfig.Manager
 	var proc *process.Process = nil
 
 	if kit != "" {
@@ -56,8 +53,9 @@ func (e *NodeJSExtension) Init(name, dir string) {
 func (e *NodeJSExtension) InstallDep() {
 	fmt.Printf("%vInstalling %v dependencies%v\n", helper.Blue, e.Path, helper.Reset)
 
-	config := e.Context.GetState("config", nil).(contextConfig)
-	p := process.NewProcess("npm install", fmt.Sprintf("%v install", config.Manager))
+	baseConfig := e.Context.GetState("config", nil).(config.Config)
+	p := process.NewProcess("npm install", fmt.Sprintf("%v install", baseConfig.Manager))
+	p.Path = e.Path
 	p.UseStandardIO()
 	p.Run()
 	p.Wait()

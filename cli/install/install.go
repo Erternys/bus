@@ -2,6 +2,7 @@ package install
 
 import (
 	"bus/cli"
+	"bus/config"
 	"bus/middleware"
 )
 
@@ -16,10 +17,10 @@ func NewInstallCommand() cli.Command {
 		Handle: func(c *cli.Context, err error) {
 			c.Execs(middleware.ReadConfigFile)
 			if len(c.Args) == 0 {
-				baseConfig := c.GetState("config", nil).(middleware.Config)
+				baseConfig := c.GetState("config", nil).(config.Config)
 
 				for _, packagePath := range baseConfig.PackagesPath {
-					packagePath.GetExtention(c).InstallDep()
+					middleware.GetPackageExtention(packagePath, c).InstallDep()
 				}
 			}
 		},
