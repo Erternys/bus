@@ -35,7 +35,7 @@ func (e *Extension) SetPath(p string) {
 }
 
 func (e *Extension) Init(name, dir string) {
-	filename := e.Context.GetFlag("config", "bus-ws.config.yaml").Value.(string)
+	filename := e.Context.GetFlag("config", ".bus.yaml").Value.(string)
 
 	version := helper.Input(fmt.Sprintf("version: (%v) ", "1.0.0"), "1.0.0")
 	description := helper.Input("description: ", "")

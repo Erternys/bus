@@ -11,7 +11,7 @@ import (
 )
 
 func ReadConfigFile(c *cli.Context, next func()) {
-	configFilePath := c.GetFlag("config", "bus-ws.config.yaml").Value.(string)
+	configFilePath := c.GetFlag("config", ".bus.yaml").Value.(string)
 	file, err := ioutil.ReadFile(configFilePath)
 	if err != nil {
 		fmt.Printf("the config file does not exist, you can execute the command \"%s init\" or \"%s init repo\"\n", c.App.Name, c.App.Name)

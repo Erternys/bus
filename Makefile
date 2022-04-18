@@ -1,6 +1,8 @@
 GO ?= go
 EXENAME = bus
 
+all: test build
+
 bin:
 	mkdir bin
 
@@ -13,6 +15,7 @@ build: bin
 	$(GO) build -o ./bin/$(EXENAME) ./main.go
 
 clean:
+	$(GO) clean
 	rm -rf ./bin
 
 ## (un)install script for unix

@@ -21,7 +21,7 @@ func NewInitCommand() cli.Command {
 		Name:         "init",
 		RequiredArgs: 1,
 		Handle: func(c *cli.Context, _ error) {
-			filename := c.GetFlag("config", "bus-ws.config.yaml").Value.(string)
+			filename := c.GetFlag("config", ".bus.yaml").Value.(string)
 			_, err := os.Stat(filename)
 			if len(c.Args) == 0 || c.Args[0] == "repo" {
 				if os.IsNotExist(err) {
