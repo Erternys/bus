@@ -45,6 +45,11 @@ func (p *Process) UseStandardIO() {
 	p.Stderr = os.Stderr
 }
 
+func (p *Process) Mute() {
+	p.Stdout = nil
+	p.Stderr = nil
+}
+
 func (p *Process) Create() {
 	p.cmd = &Command{
 		Path:   p.Path,

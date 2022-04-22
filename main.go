@@ -16,6 +16,7 @@ var app = cli.NewApp(
 
 func main() {
 	app.AddFlag(cli.NewFlag("config", "Change the config file used (by default: .bus.yaml)", cli.String, "c"))
+	app.AddFlag(cli.NewFlag("dry-run", "Show which script bus execute without execute it (muter characters do not work)", cli.Bool, "dr", "d"))
 	app.AddCommand(init_c.NewInitCommand())
 	app.AddCommand(run.NewRunCommand())
 	app.AddCommand(install.NewInstallCommand())

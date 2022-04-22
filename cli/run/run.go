@@ -59,6 +59,7 @@ func NewRunCommand() cli.Command {
 					}
 
 					s := script.NewScript(packagePath, path.Join(helper.WorkSpacePath, packagePath.Path), cmd)
+					s.DryRun = c.GetFlag("dry-run", false).Value.(bool)
 					if !background {
 						wg.Add(1)
 					}
