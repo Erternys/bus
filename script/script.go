@@ -42,7 +42,7 @@ func NewScript(pathConfig *config.Package, absPath, cmd string) *Script {
 	if muteLvl == RunMuted || muteLvl == Muted {
 		p.Mute()
 	}
-	p.Daemon = true
+	p.Restart = true
 	p.Path = absPath
 
 	return &Script{

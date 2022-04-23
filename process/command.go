@@ -20,6 +20,7 @@ type Command struct {
 
 func (c *Command) Start() error {
 	c.current = exec.Command(c.value[0], c.value[1:]...)
+	c.current.Env = os.Environ()
 	c.current.Dir = c.Path
 	c.current.Stdin = c.Stdin
 	c.current.Stdout = c.Stdout

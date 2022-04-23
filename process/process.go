@@ -4,17 +4,16 @@ import (
 	"bus/buffer"
 	"errors"
 	"os"
-	"strings"
 )
 
 type Process struct {
-	Path   string
-	Pid    int
-	Daemon bool
-	Stdin  buffer.Reader
-	Stdout buffer.Writer
-	Stderr buffer.Writer
-	cmd    *Command
+	Path    string
+	Pid     int
+	Restart bool
+	Stdin   buffer.Reader
+	Stdout  buffer.Writer
+	Stderr  buffer.Writer
+	cmd     *Command
 
 	name          string
 	commandString string
@@ -28,7 +27,7 @@ func NewProcess(name string, command string) *Process {
 	return &Process{
 		Path:          "",
 		Pid:           -1,
-		Daemon:        false,
+		Restart:       false,
 		name:          name,
 		commandString: command,
 
@@ -51,13 +50,14 @@ func (p *Process) Mute() {
 }
 
 func (p *Process) Create() {
+	// fmt.Println(strings.Split(p.commandString, " "), split(p.commandString))
 	p.cmd = &Command{
 		Path:   p.Path,
 		Stdin:  p.Stdin,
 		Stdout: p.Stdout,
 		Stderr: p.Stderr,
 
-		value: strings.Split(p.commandString, " "),
+		value: split(p.commandString),
 	}
 }
 
@@ -75,7 +75,7 @@ func (p *Process) Run() error {
 
 func (p *Process) Wait() error {
 	err := p.cmd.Wait()
-	if p.cmd.State.ExitCode() == 0 || !p.Daemon {
+	if p.cmd.State.ExitCode() == 0 || p.Restart {
 		return err
 	}
 	err = p.Run()
