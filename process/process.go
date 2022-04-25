@@ -50,7 +50,6 @@ func (p *Process) Mute() {
 }
 
 func (p *Process) Create() {
-	// fmt.Println(strings.Split(p.commandString, " "), split(p.commandString))
 	p.cmd = &Command{
 		Path:   p.Path,
 		Stdin:  p.Stdin,
