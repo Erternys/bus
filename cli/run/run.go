@@ -7,6 +7,8 @@ import (
 	"bus/middleware"
 	"bus/script"
 	"fmt"
+	"os"
+	"os/signal"
 	"path"
 	"strings"
 	"sync"
@@ -14,6 +16,16 @@ import (
 )
 
 var wg sync.WaitGroup
+var startedScripts []*script.Script
+
+func CtrlC(c chan os.Signal) {
+	<-c
+	fmt.Print(" Killing all scripts\n")
+	for _, script := range startedScripts {
+		script.Kill()
+	}
+	syscall.Exit(0)
+}
 
 func NewRunCommand() cli.Command {
 	return cli.Command{
@@ -27,7 +39,7 @@ func NewRunCommand() cli.Command {
 			c.Execs(middleware.ReadConfigFile)
 
 			if len(c.Args) == 0 {
-				fmt.Println("Please give a script to execute `script_name` or `process@script_name`")
+				fmt.Printf("%vPlease give a script to execute `script_name` or `process@script_name`%v\n", helper.Red+helper.Bold, helper.Reset)
 				syscall.Exit(1)
 			}
 
@@ -64,8 +76,13 @@ func NewRunCommand() cli.Command {
 						wg.Add(1)
 					}
 					go s.Start(wg.Done)
+					startedScripts = append(startedScripts, s)
 				}
 			}
+			sig := make(chan os.Signal)
+			signal.Notify(sig, os.Interrupt, syscall.SIGTERM)
+
+			go CtrlC(sig)
 
 			if !background {
 				wg.Wait()

@@ -34,7 +34,7 @@ func Getwd() string {
 func GetRepository() string {
 	out, _ := exec.Command("git", "config", "--get", "remote.origin.url").Output()
 
-	return strings.TrimFunc(string(out), unicode.IsSpace)
+	return strings.TrimSpace(string(out))
 }
 
 func InArray(val interface{}, array interface{}) bool {

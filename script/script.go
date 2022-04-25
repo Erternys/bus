@@ -72,3 +72,7 @@ func (s *Script) Start(done func()) error {
 	}
 	return s.process.Wait()
 }
+
+func (s *Script) Kill() {
+	s.process.Kill()
+}
