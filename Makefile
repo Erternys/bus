@@ -13,6 +13,8 @@ test:
 build: bin
 	@$(GO) install
 	$(GO) build -o ./bin/$(EXENAME) ./main.go
+	cd ./proxy; \
+	cargo build -Z unstable-options --release --out-dir ../bin/
 
 clean:
 	$(GO) clean
