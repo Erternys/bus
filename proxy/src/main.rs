@@ -15,5 +15,7 @@ fn main() {
 
     conn.read(&mut res).unwrap();
     req.write(&res).unwrap();
+    conn.close().unwrap();
+    req.close().unwrap();
   });
 }

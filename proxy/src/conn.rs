@@ -2,7 +2,7 @@ use std::io::{self, Read, Write};
 use std::net::TcpStream;
 use std::time::Duration;
 
-const CHUNK_LENGTH_MAX: usize = 1024;
+const CHUNK_LENGTH_MAX: usize = usize::pow(2, 5);
 
 pub struct Conn {
   stream: TcpStream
@@ -47,5 +47,9 @@ impl Conn {
 
   pub fn write(&mut self, data: &[u8]) -> io::Result<usize> {
     self.stream.write(data)
+  }
+
+  pub fn close(&self) -> io::Result<()>{
+    self.stream.shutdown(std::net::Shutdown::Both)
   }
 }
