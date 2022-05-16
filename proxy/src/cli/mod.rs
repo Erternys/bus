@@ -1,6 +1,6 @@
 mod init;
-
-pub use init::Init;
+mod start;
+// mod stop;
 
 use std::ffi::OsString;
 
@@ -23,7 +23,10 @@ pub struct App {
 #[derive(Debug, Subcommand)]
 pub enum Commands {
   /// Add in the config file the configuration for the proxy
-  Init(Init),
+  Init(init::Init),
+
+  /// Starts a proxy server with the info given in the configuration
+  Start(start::Start),
 
   #[clap(external_subcommand)]
   External(Vec<OsString>)

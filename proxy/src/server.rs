@@ -2,12 +2,12 @@ use std::net::TcpListener;
 
 use super::conn::Conn;
 
-pub struct Server<'s> {
-  addr: &'s str
+pub struct Server {
+  addr: String
 }
 
-impl<'s> Server<'s> {
-  pub fn new(addr: &'s str) -> Self {
+impl Server {
+  pub fn new(addr: String) -> Self {
     Self {
       addr
     }
