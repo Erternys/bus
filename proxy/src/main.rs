@@ -2,6 +2,7 @@ mod cli;
 mod config;
 mod conn;
 mod helper;
+mod http_parser;
 mod server;
 
 use clap::Parser;
