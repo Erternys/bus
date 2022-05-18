@@ -1,5 +1,6 @@
-use std::io::{Error, ErrorKind, Result};
+use crate::conn::Conn;
 
+use super::errors::{ParserError, ParserErrorKind};
 #[derive(Default, Debug)]
 pub struct Request {
   pub method: String,
@@ -11,9 +12,20 @@ pub struct Request {
 }
 
 impl Request {
-  pub fn parse(req_str: &str) -> Result<Self> {
+  pub fn from_conn<'p>(conn: &Conn) -> Result<Self, ParserError<'p>> {
+    let mut body = Vec::new();
+    if let Err(_) = conn.read(&mut body) {
+      return Err(ParserError::new(ParserErrorKind::Reading, "the data cannot be read"))
+    }
+
+    Self::parse(match String::from_utf8(body) {
+      Ok(d) => d,
+      Err(_) => return Err(ParserError::new(ParserErrorKind::Utf8, "the data has not been encoded in utf-8 OR the utf-8 parsing is not correct"))
+    })
+  }
+
+  pub fn parse<'p>(req_str: String) -> Result<Self, ParserError<'p>> {
     let mut req = Self::default();
-    println!("{:?}", req_str);
 
     let mut lines = req_str.split_inclusive("\r\n");
     match lines.next() {
@@ -24,7 +36,7 @@ impl Request {
           req.url = url.to_string();
           req.version = version.to_string();
         } else {
-          return Err(Error::from(ErrorKind::InvalidData))
+          return Err(ParserError::new(ParserErrorKind::Parsing, "the data cannot be parsed"))
         }
       },
       None => ()
@@ -37,7 +49,7 @@ impl Request {
       } else if line.len() == 2 {
         break
       } else {
-        return Err(Error::from(ErrorKind::InvalidData))
+        return Err(ParserError::new(ParserErrorKind::Parsing, "the data cannot be parsed"))
       }
     }
 

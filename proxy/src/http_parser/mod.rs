@@ -1,3 +1,4 @@
+mod errors;
 mod request;
 mod response;
 
