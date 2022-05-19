@@ -1,6 +1,8 @@
 use std::collections::BTreeMap;
 
-use super::errors::{ParserError, ParserErrorKind};
+use crate::{conn::Conn, str_vec};
+
+use super::errors::{HttpError, HttpErrorKind};
 
 #[derive(Debug)]
 pub struct Response {
@@ -13,7 +15,7 @@ pub struct Response {
 }
 
 impl Response {
-  pub fn parse(res_str: &str) -> Result<Self, ParserError> {
+  pub fn parse(res_str: &str) -> Result<Self, HttpError> {
     let mut res = Self::default();
 
     let mut lines = res_str.split_inclusive("\r\n");
@@ -23,15 +25,15 @@ impl Response {
         if let [version, status, message] = Vec::from_iter(line.splitn(3, " ")).as_slice() {
           res.status = match status.parse() {
             Ok(v) => v,
-            Err(_) => return Err(ParserError::new(ParserErrorKind::Parsing, "the data cannot be parsed"))
+            Err(_) => return Err(HttpError::new(HttpErrorKind::Parsing, "the data cannot be parsed"))
           };
           res.message = message.to_string();
           res.version = version.to_string();
         } else {
-          return Err(ParserError::new(ParserErrorKind::Parsing, "the data cannot be parsed"))
+          return Err(HttpError::new(HttpErrorKind::Parsing, "the data cannot be parsed"))
         }
       },
-      None => return Err(ParserError::new(ParserErrorKind::Parsing, "the data cannot be parsed"))
+      None => return Err(HttpError::new(HttpErrorKind::Parsing, "the data cannot be parsed"))
     }
     while let Some(line) = lines.next() {
       if let [header, value] = Vec::from_iter(line.splitn(2, ":")).as_slice() {
@@ -41,7 +43,7 @@ impl Response {
       } else if line.len() == 2 {
         break
       } else {
-        return Err(ParserError::new(ParserErrorKind::Parsing, "the data cannot be parsed"))
+        return Err(HttpError::new(HttpErrorKind::Parsing, "the data cannot be parsed"))
       }
     }
 
@@ -50,6 +52,22 @@ impl Response {
     }
 
     Ok(res)
+  }
+
+  pub fn send(&mut self, conn: &mut Conn) -> Result<(), HttpError>{
+    let mut data: Vec<u8> = Vec::new();
+    data.append(&mut str_vec!("{} {} {}\r\n", self.version, self.status, self.message));
+    for (header, value) in &self.headers {
+      let mut line = str_vec!("{}: {}\r\n", header, value);
+      data.append(&mut line);
+    }
+    data.append(&mut str_vec!("\r\n"));
+    data.append(&mut self.body);
+
+    match conn.write(&data){
+      Ok(_) => Ok(()),
+      Err(_) => Err(HttpError::new(HttpErrorKind::Sending, "an error has occurred when the response was sent"))
+    }
   }
 }
 
