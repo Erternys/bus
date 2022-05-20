@@ -1,7 +1,10 @@
-use std::io::stdin;
+use std::io::{stdin, stdout, Write};
 
 pub fn input(prompt: &str, default_value: &str) -> String {
-  println!("{}", prompt);
+  print!("{}", prompt);
+  if let Err(_) = stdout().flush() {
+    return default_value.to_string()
+  }
 
   let mut line = String::new();
   if let Ok(_) = stdin().read_line(&mut line) {
