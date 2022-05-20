@@ -15,7 +15,7 @@ pub struct Response {
 }
 
 impl Response {
-  pub fn parse(res_str: &str) -> Result<Self, HttpError> {
+  pub fn parse<'p>(res_str: String) -> Result<Self, HttpError<'p>> {
     let mut res = Self::default();
 
     let mut lines = res_str.split_inclusive("\r\n");
@@ -52,6 +52,20 @@ impl Response {
     }
 
     Ok(res)
+  }
+
+  pub fn vacuum(&mut self, conn: &mut Conn) -> Result<(), HttpError> {
+    let mut body = Vec::new();
+    if let Err(_) = conn.read(&mut body) {
+      return Err(HttpError::new(HttpErrorKind::Reading, "the data cannot be read"))
+    }
+
+    *self = Self::parse(match String::from_utf8(body) {
+      Ok(d) => d,
+      Err(_) => return Err(HttpError::new(HttpErrorKind::Utf8, "the data has not been encoded in utf-8 OR the utf-8 parsing is not correct"))
+    })?;
+
+    Ok(())
   }
 
   pub fn send(&mut self, conn: &mut Conn) -> Result<(), HttpError>{

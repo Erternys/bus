@@ -49,7 +49,13 @@ impl Conn {
     self.stream.write(data)
   }
 
-  pub fn close(&self) -> io::Result<()>{
+  pub fn close(&self) -> io::Result<()> {
     self.stream.shutdown(std::net::Shutdown::Both)
+  }
+}
+
+impl Drop for Conn {
+  fn drop(&mut self) {
+    self.close();
   }
 }

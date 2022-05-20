@@ -15,12 +15,12 @@ impl Server {
 
   pub fn run<F>(self, mut callback: F)
   where
-    F: FnMut(Conn) + 'static
+    F: FnMut(Conn, &String) + 'static
   {
-    let listener = TcpListener::bind(self.addr).unwrap();
+    let listener = TcpListener::bind(&self.addr).unwrap();
 
     for stream in listener.incoming() {
-      callback(Conn::from_stream(stream.unwrap()).unwrap());
+      callback(Conn::from_stream(stream.unwrap()).unwrap(), &self.addr);
     }
   }
 }

@@ -72,7 +72,7 @@ impl Request {
 
     match conn.write(&data){
       Ok(_) => Ok(()),
-      Err(_) => Err(HttpError::new(HttpErrorKind::Sending, "an error has occurred when the response was sent"))
+      Err(_) => Err(HttpError::new(HttpErrorKind::Sending, "an error has occurred when the request was sent"))
     }
   }
 }

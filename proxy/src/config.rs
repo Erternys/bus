@@ -10,7 +10,7 @@ pub struct Config {
   pub repository: String,
   pub manager: String,
   pub packages: Vec<Package>,
-  pub proxy: Option<ProxyConfig>,
+  pub proxy: Option<ProxyConfig>
 }
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Package {
