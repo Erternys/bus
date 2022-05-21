@@ -19,8 +19,9 @@ impl Server {
   {
     let listener = TcpListener::bind(&self.addr).unwrap();
 
-    for stream in listener.incoming() {
-      callback(Conn::from_stream(stream.unwrap()).unwrap(), &self.addr);
+    loop {
+      let stream = listener.accept().unwrap().0;
+      callback(Conn::from_stream(stream).unwrap(), &self.addr);
     }
   }
 }
