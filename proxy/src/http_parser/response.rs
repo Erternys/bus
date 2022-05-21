@@ -17,7 +17,6 @@ pub struct Response {
 impl Response {
   pub fn parse<'p>(res_str: String) -> Result<Self, HttpError<'p>> {
     let mut res = Self::default();
-
     let mut lines = res_str.split_inclusive("\r\n");
     match lines.next() {
       Some(line) => {
@@ -25,15 +24,15 @@ impl Response {
         if let [version, status, message] = Vec::from_iter(line.splitn(3, " ")).as_slice() {
           res.status = match status.parse() {
             Ok(v) => v,
-            Err(_) => return Err(HttpError::new(HttpErrorKind::Parsing, "the data cannot be parsed"))
+            Err(_) => return Err(HttpError::new(HttpErrorKind::Parsing, "1the data cannot be parsed"))
           };
           res.message = message.to_string();
           res.version = version.to_string();
         } else {
-          return Err(HttpError::new(HttpErrorKind::Parsing, "the data cannot be parsed"))
+          return Err(HttpError::new(HttpErrorKind::Parsing, "2the data cannot be parsed"))
         }
       },
-      None => return Err(HttpError::new(HttpErrorKind::Parsing, "the data cannot be parsed"))
+      None => return Err(HttpError::new(HttpErrorKind::Parsing, "3the data cannot be parsed"))
     }
     while let Some(line) = lines.next() {
       if let [header, value] = Vec::from_iter(line.splitn(2, ":")).as_slice() {
@@ -43,7 +42,7 @@ impl Response {
       } else if line.len() == 2 {
         break
       } else {
-        return Err(HttpError::new(HttpErrorKind::Parsing, "the data cannot be parsed"))
+        return Err(HttpError::new(HttpErrorKind::Parsing, "4the data cannot be parsed"))
       }
     }
 
@@ -79,8 +78,12 @@ impl Response {
     data.append(&mut self.body);
 
     match conn.write(&data){
+      Ok(_) => (),
+      Err(_) => return Err(HttpError::new(HttpErrorKind::Sending, "an error has occurred when the response was sent"))
+    };
+    match conn.close() {
       Ok(_) => Ok(()),
-      Err(_) => Err(HttpError::new(HttpErrorKind::Sending, "an error has occurred when the response was sent"))
+      Err(_) => Err(HttpError::new(HttpErrorKind::Closing, "an error has occurred when the response was closed"))
     }
   }
 }

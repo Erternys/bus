@@ -1,5 +1,6 @@
 #[derive(Debug)]
 pub enum HttpErrorKind {
+  Closing,
   Parsing,
   Reading,
   Sending,

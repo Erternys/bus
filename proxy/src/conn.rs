@@ -45,8 +45,9 @@ impl Conn {
     self.stream.set_write_timeout(Some(dur))
   }
 
-  pub fn write(&mut self, data: &[u8]) -> io::Result<usize> {
-    self.stream.write(data)
+  pub fn write(&mut self, data: &[u8]) -> io::Result<()> {
+    self.stream.write_all(data)?;
+    self.stream.flush()
   }
 
   pub fn close(&self) -> io::Result<()> {
@@ -56,6 +57,6 @@ impl Conn {
 
 impl Drop for Conn {
   fn drop(&mut self) {
-    self.close();
+    let _ = self.close();
   }
 }
