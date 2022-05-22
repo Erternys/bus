@@ -1,6 +1,6 @@
+mod alias;
 mod init;
 mod start;
-// mod stop;
 
 use std::ffi::OsString;
 

@@ -1,7 +1,7 @@
 use crate::config::{Config, ProxyConfig};
 use crate::helper;
 use clap::Args;
-use std::collections::HashMap;
+use std::collections::BTreeMap;
 use std::fs::{File, OpenOptions};
 use std::process::exit;
 
@@ -33,12 +33,12 @@ impl Init {
     }
 
     let port = helper::input(&format!("port: ({}) ", "80"), "80");
-    let open = helper::str_to_bool(helper::input(&format!("open: ({}) ", "true"), "true"));
+    let open = helper::str_to_bool(helper::input("open: ", "true"));
 
     let proxy = ProxyConfig {
       port,
       open: Some(open),
-      aliases: HashMap::new()
+      aliases: BTreeMap::new()
     };
 
     config.proxy = Some(proxy);

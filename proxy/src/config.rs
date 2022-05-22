@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::collections::BTreeMap;
 
 use serde::{Deserialize, Serialize};
 
@@ -23,5 +23,5 @@ pub struct Package {
 pub struct ProxyConfig {
   pub port: String,
   pub open: Option<bool>,
-  pub aliases: HashMap<String, String>
+  pub aliases: BTreeMap<String, String>
 }
