@@ -1,4 +1,8 @@
-use std::collections::BTreeMap;
+use std::{collections::BTreeMap, fs::File, io::Read};
+
+use crate::{http_parser::{Response, Request}, conn::Conn};
+
+use super::errors::{e440, e500};
 
 #[derive(Debug)]
 pub enum Alias {
@@ -35,6 +39,62 @@ impl Alias {
       Alias::File(s)
     }else{
       Alias::Http(s)
+    }
+  }
+
+  pub fn to_response(&self, addr: String, key: String, req: &mut Request) -> Response {
+    match self {
+      Alias::File(path) => {
+        let mut file = match File::open(path) {
+          Ok(file) => file,
+          Err(_) => return e440()
+        };
+        
+        let mut buf = Vec::new();
+        let size = match file.read_to_end(&mut buf){
+          Ok(size) => size,
+          Err(_) => return e500()
+        };
+        
+        let mut res = Response::default();
+        if size == 0 {
+          res.status = 204;
+          res.message = String::from("No Content");
+        } else {
+          res.status = 200;
+          res.message = String::from("OK");
+          res.headers.insert(String::from("Content-Length"), size.to_string());
+        }
+
+        res.body = buf;
+        res
+      },
+      Alias::Http(path) => {
+        let root = "/".to_string();
+        let (host, path) = match path.split_once("/") {
+          Some((host, path)) => (host.to_string(), root + path),
+          None => {
+            let path = path.clone();
+            if path.chars().next().unwrap() == '/' {
+              (addr, path)
+            } else {
+              (path, root)
+            }
+          }
+        };
+        
+        req.headers.insert(String::from("Host"), host.clone());
+        req.url = req.url.replacen(&key, &path, 1).replace("//", "/");
+        
+        let mut res = Response::default();
+        let mut server_conn = Conn::new(&host).unwrap();
+        req.send(&mut server_conn).unwrap();
+        res.vacuum(&mut server_conn).unwrap();
+        res
+      },
+      Alias::Empty => {
+        e500()
+      }
     }
   }
 }

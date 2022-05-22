@@ -1,4 +1,5 @@
 mod alias;
+mod errors;
 mod init;
 mod start;
 
