@@ -3,6 +3,7 @@ use crate::helper;
 use clap::Args;
 use std::collections::BTreeMap;
 use std::fs::{File, OpenOptions};
+use std::io::Write;
 use std::process::exit;
 
 #[derive(Debug, Args)]
@@ -43,16 +44,25 @@ impl Init {
 
     config.proxy = Some(proxy);
 
-    let file = OpenOptions::new()
+    let mut file = OpenOptions::new()
       .write(true)
       .create(true)
       .open("./.bus.yaml")
       .unwrap();
 
-    match serde_yaml::to_writer(file, &config) {
+    let content = match serde_yaml::to_string(&config) {
+      Ok(s) => s,
+      Err(_) => {
+        eprintln!("The config cannot be created, an error from a non-utf8 character");
+        exit(1);
+      }
+    };
+    let content = content[3..].trim().as_bytes();
+
+    match file.write(content) {
       Ok(_) => (),
       Err(_) => {
-        eprintln!("The config file cannot be write, please change the permission");
+        eprintln!("The config file cannot be writed, please change the permission");
         exit(1);
       }
     };
