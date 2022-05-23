@@ -6,6 +6,7 @@ use std::collections::BTreeMap;
 
 pub use request::Request;
 pub use response::Response;
+pub use errors::HttpErrorKind;
 
 pub type Headers = BTreeMap<String, String>;
 

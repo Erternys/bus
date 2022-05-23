@@ -60,14 +60,14 @@ pub fn e404() -> Response {
   res
 }
 
-pub fn e440() -> Response {
+pub fn e406() -> Response {
   let mut res = Response::default();
-  res.status = 404;
-  res.message = String::from("Uncontextualised Resource");
+  res.status = 406;
+  res.message = String::from("Not Acceptable");
   res.body = cformat!(
     LAYOUT, 
-    "440",
-    "Uncontextualised Resource",
+    "406",
+    "Not Acceptable",
     "0.1.0-beta", 
     "0.1.0-beta"
   )

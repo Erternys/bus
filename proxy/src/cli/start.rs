@@ -4,10 +4,11 @@ use std::process::exit;
 use clap::Args;
 
 use crate::config::Config;
-use crate::http_parser::Request;
+use crate::http_parser::{Request, HttpErrorKind};
 use crate::server::Server;
 
 use super::alias::Alias;
+use super::errors::{e400, e500};
 
 #[derive(Debug, Args)]
 pub struct Start;
@@ -54,12 +55,13 @@ impl Start {
     
     let server = Server::new(addr);
     server.run(move |mut client_conn, addr| {
-      let req = Request::from_conn(&mut client_conn);
-      
-      let mut req = match req {
+      let mut req = match Request::from_conn(&mut client_conn) {
         Ok(r) => r,
-        Err(_) => {
-          let mut res = super::errors::e400();
+        Err(error) => {
+          let mut res = match error.kind {
+            HttpErrorKind::Reading => e500(),
+            _ => e400()
+          };
           res.send(&mut client_conn).unwrap();
           return
         }

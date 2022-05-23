@@ -1,4 +1,4 @@
-#[derive(Debug)]
+#[derive(Debug, PartialEq, Eq)]
 pub enum HttpErrorKind {
   Closing,
   Parsing,
@@ -9,7 +9,7 @@ pub enum HttpErrorKind {
 
 #[derive(Debug)]
 pub struct HttpError<'s> {
-  kind: HttpErrorKind,
+  pub kind: HttpErrorKind,
   message: &'s str
 }
 
