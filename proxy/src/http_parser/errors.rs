@@ -15,7 +15,10 @@ pub struct HttpError<'s> {
 
 impl<'s> HttpError<'s> {
   pub fn new(kind: HttpErrorKind, message: &'s str) -> Self {
-    Self { kind, message }
+    Self {
+      kind,
+      message
+    }
   }
 }
 

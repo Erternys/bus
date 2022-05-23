@@ -1,4 +1,5 @@
-use crate::{conn::Conn, str_vec};
+use crate::conn::Conn;
+use crate::str_vec;
 
 use super::errors::{HttpError, HttpErrorKind};
 #[derive(Default, Debug)]
@@ -15,12 +16,19 @@ impl Request {
   pub fn from_conn<'p>(conn: &mut Conn) -> Result<Self, HttpError<'p>> {
     let mut body = Vec::new();
     if let Err(_) = conn.read(&mut body) {
-      return Err(HttpError::new(HttpErrorKind::Reading, "the data cannot be read"))
+      return Err(HttpError::new(
+        HttpErrorKind::Reading,
+        "the data cannot be read"
+      ))
     }
 
     Self::parse(match String::from_utf8(body) {
       Ok(d) => d,
-      Err(_) => return Err(HttpError::new(HttpErrorKind::Utf8, "the data has not been encoded in utf-8 OR the utf-8 parsing is not correct"))
+      Err(_) =>
+        return Err(HttpError::new(
+          HttpErrorKind::Utf8,
+          "the data has not been encoded in utf-8 OR the utf-8 parsing is not correct"
+        )),
     })
   }
 
@@ -36,7 +44,10 @@ impl Request {
           req.url = url.to_string();
           req.version = version.to_string();
         } else {
-          return Err(HttpError::new(HttpErrorKind::Parsing, "the data cannot be parsed"))
+          return Err(HttpError::new(
+            HttpErrorKind::Parsing,
+            "the data cannot be parsed"
+          ))
         }
       },
       None => ()
@@ -49,7 +60,10 @@ impl Request {
       } else if line.len() == 2 {
         break
       } else {
-        return Err(HttpError::new(HttpErrorKind::Parsing, "the data cannot be parsed"))
+        return Err(HttpError::new(
+          HttpErrorKind::Parsing,
+          "the data cannot be parsed"
+        ))
       }
     }
 
@@ -60,9 +74,14 @@ impl Request {
     Ok(req)
   }
 
-  pub fn send(&mut self, conn: &mut Conn) -> Result<(), HttpError>{
+  pub fn send(&mut self, conn: &mut Conn) -> Result<(), HttpError> {
     let mut data: Vec<u8> = Vec::new();
-    data.append(&mut str_vec!("{} {} {}\r\n", self.method, self.url, self.version));
+    data.append(&mut str_vec!(
+      "{} {} {}\r\n",
+      self.method,
+      self.url,
+      self.version
+    ));
     for (header, value) in &self.headers {
       let mut line = str_vec!("{}: {}\r\n", header, value);
       data.append(&mut line);
@@ -70,9 +89,12 @@ impl Request {
     data.append(&mut str_vec!("\r\n"));
     data.append(&mut self.body);
 
-    match conn.write(&data){
+    match conn.write(&data) {
       Ok(_) => Ok(()),
-      Err(_) => Err(HttpError::new(HttpErrorKind::Sending, "an error has occurred when the request was sent"))
+      Err(_) => Err(HttpError::new(
+        HttpErrorKind::Sending,
+        "an error has occurred when the request was sent"
+      ))
     }
   }
 }

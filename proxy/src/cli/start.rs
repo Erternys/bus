@@ -4,11 +4,11 @@ use std::process::exit;
 use clap::Args;
 
 use crate::config::Config;
-use crate::http_parser::{Request, HttpErrorKind};
+use crate::http_parser::{HttpErrorKind, Request};
 use crate::server::Server;
 
 use super::alias::Alias;
-use super::errors::{e400, e500};
+use super::errors::{e400, e404, e500};
 
 #[derive(Debug, Args)]
 pub struct Start;
@@ -52,7 +52,7 @@ impl Start {
     );
 
     let (aliases, joker) = Alias::from_iter(proxy.aliases);
-    
+
     let server = Server::new(addr);
     server.run(move |mut client_conn, addr| {
       let mut req = match Request::from_conn(&mut client_conn) {
@@ -70,7 +70,7 @@ impl Start {
       let mut iter = aliases.iter();
 
       let res = loop {
-        let (path, alias) = match iter.next(){
+        let (path, alias) = match iter.next() {
           Some((path, alias)) => (path, alias),
           None => break None
         };
@@ -81,13 +81,12 @@ impl Start {
       };
       let mut res = match res {
         Some(r) => r,
-        None => {
+        None =>
           if let Some(alias) = &joker {
             alias.to_response(addr.clone(), "/".to_string(), &mut req)
           } else {
-            super::errors::e404()
-          }
-        }
+            e404()
+          },
       };
       res.send(&mut client_conn).unwrap();
     });

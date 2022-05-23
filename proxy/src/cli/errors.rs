@@ -29,14 +29,8 @@ macro_rules! cformat {
 pub fn e400() -> Response {
   let mut res = Response::default();
   res.status = 400;
-  res.message = String::from("Bad Request");
-  res.body = cformat!(
-    LAYOUT, 
-    "400", 
-    "Bad Request", 
-    "0.1.0-beta", 
-    "0.1.0-beta"
-  )
+  res.message = "Bad Request".to_string();
+  res.body = cformat!(LAYOUT, "400", "Bad Request", "0.1.0-beta", "0.1.0-beta")
     .as_bytes()
     .to_vec();
 
@@ -46,14 +40,8 @@ pub fn e400() -> Response {
 pub fn e404() -> Response {
   let mut res = Response::default();
   res.status = 404;
-  res.message = String::from("Not Found");
-  res.body = cformat!(
-    LAYOUT, 
-    "404",
-    "Not Found", 
-    "0.1.0-beta", 
-    "0.1.0-beta"
-  )
+  res.message = "Not Found".to_string();
+  res.body = cformat!(LAYOUT, "404", "Not Found", "0.1.0-beta", "0.1.0-beta")
     .as_bytes()
     .to_vec();
 
@@ -63,14 +51,8 @@ pub fn e404() -> Response {
 pub fn e406() -> Response {
   let mut res = Response::default();
   res.status = 406;
-  res.message = String::from("Not Acceptable");
-  res.body = cformat!(
-    LAYOUT, 
-    "406",
-    "Not Acceptable",
-    "0.1.0-beta", 
-    "0.1.0-beta"
-  )
+  res.message = "Not Acceptable".to_string();
+  res.body = cformat!(LAYOUT, "406", "Not Acceptable", "0.1.0-beta", "0.1.0-beta")
     .as_bytes()
     .to_vec();
 
@@ -80,16 +62,16 @@ pub fn e406() -> Response {
 pub fn e500() -> Response {
   let mut res = Response::default();
   res.status = 500;
-  res.message = String::from("Internal Server Error");
+  res.message = "Internal Server Error".to_string();
   res.body = cformat!(
-    LAYOUT, 
+    LAYOUT,
     "500",
-    "Internal Server Error", 
-    "0.1.0-beta", 
+    "Internal Server Error",
+    "0.1.0-beta",
     "0.1.0-beta"
   )
-    .as_bytes()
-    .to_vec();
+  .as_bytes()
+  .to_vec();
 
   res
 }
