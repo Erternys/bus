@@ -74,7 +74,7 @@ func (p *Process) Run() error {
 
 func (p *Process) Wait() error {
 	err := p.cmd.Wait()
-	if p.cmd.State.ExitCode() == 0 || p.Restart {
+	if p.cmd.State.ExitCode() == 0 || !p.Restart {
 		return err
 	}
 	err = p.Run()

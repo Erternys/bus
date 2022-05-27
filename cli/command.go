@@ -30,7 +30,7 @@ func (c *CliApp) SetHelpCommand() {
 		Description:  "Print help information",
 		RequiredArgs: 0,
 		Handle: func(c *Context, _ error) {
-			output := c.App.Description + "\n"
+			output := c.App.Name + " " + c.App.Version + "\n" + c.App.Description + "\n"
 
 			output += fmt.Sprintf("\nUsage:\n    %v [Flags] [Subcommand]\n", c.App.Name)
 

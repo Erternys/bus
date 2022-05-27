@@ -7,9 +7,10 @@ type HandleExec func(c *Context, next func())
 type Context struct {
 	App *CliApp
 
-	Args  []string
-	Flags map[string]Flag
-	State map[string]interface{}
+	Args    []string
+	RawArgs []string
+	Flags   map[string]Flag
+	State   map[string]interface{}
 }
 
 func NewContext(app *CliApp) *Context {

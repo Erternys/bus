@@ -11,8 +11,8 @@ use clap::{ColorChoice, Parser, Subcommand};
 #[clap(
   name = "bus-proxy", 
   bin_name = "bus-proxy",
-  version = "1.0.0",
-  about = "A fictional versioning CLI", 
+  version = "0.1.0-beta",
+  about = "Server proxy for bus",
   long_about = None,
   color = ColorChoice::Never
 )]
