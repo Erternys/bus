@@ -45,7 +45,7 @@ func NewInitCommand() cli.Command {
 						Version:      version,
 						Description:  description,
 						Repository:   repository,
-						Manager:      "npm",
+						JsManager:    "npm",
 						PackagesPath: make([]*config.Package, 0),
 					})
 

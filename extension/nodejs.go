@@ -36,7 +36,7 @@ func (e *NodeJSExtension) Init(name, dir string) {
 		kit = helper.Input("kit: ", kit)
 	}
 
-	use := baseConfig.Manager
+	use := baseConfig.JsManager
 	var proc *process.Process = nil
 
 	if kit != "" {
@@ -54,7 +54,7 @@ func (e *NodeJSExtension) InstallDep() {
 	fmt.Printf("%vInstalling %v dependencies%v\n", helper.Blue, e.Path, helper.Reset)
 
 	baseConfig := e.Context.GetState("config", nil).(config.Config)
-	p := process.NewProcess("npm install", fmt.Sprintf("%v install", baseConfig.Manager))
+	p := process.NewProcess("npm install", fmt.Sprintf("%v install", baseConfig.JsManager))
 	p.Path = e.Path
 	p.UseStandardIO()
 	p.Run()

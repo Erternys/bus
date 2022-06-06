@@ -11,6 +11,6 @@ type Config struct {
 	Version      string
 	Description  string
 	Repository   string
-	Manager      string
+	JsManager    string     `yaml:"js_manager"`
 	PackagesPath []*Package `yaml:"packages"`
 }

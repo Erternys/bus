@@ -62,7 +62,7 @@ func NewRunCommand() cli.Command {
 					scripts := config["scripts"].(map[string]interface{})
 					cmd, ok := scripts[scriptName].(string)
 					if packagePath.Extend == "nodejs" {
-						manager := baseConfig.Manager
+						manager := baseConfig.JsManager
 						cmd = fmt.Sprintf("%v run %v", manager, scriptName)
 					}
 
