@@ -2,8 +2,11 @@ package cli
 
 import (
 	"bus/helper"
+	"bus/process"
 	"errors"
 	"fmt"
+	"os"
+	"path"
 	"strings"
 )
 
@@ -33,6 +36,25 @@ func NewApp(name string, description string, version string) CliApp {
 
 func (c *CliApp) AddCommand(command Command) {
 	c.commands = append(c.commands, command)
+}
+func (c *CliApp) AddCommandFromExe(command ExeCommand) {
+	exe_path := path.Join(os.Args[0], "..", command.File)
+	_, err := os.Stat(exe_path)
+	if !os.IsNotExist(err) {
+		c.commands = append(c.commands, Command{
+			Name:        command.Name,
+			Flags:       command.Flags,
+			Aliases:     command.Aliases,
+			FlagAliases: command.FlagAliases,
+			Description: command.Description,
+			Handle: func(c *Context, err error) {
+				p := process.NewProcess(command.Name, exe_path+" "+strings.Join(c.RawArgs, " "))
+				p.UseStandardIO()
+				p.Run()
+				p.Wait()
+			},
+		})
+	}
 }
 func (c *CliApp) AddFlag(flag Flag) {
 	c.flags = append(c.flags, flag)
@@ -65,10 +87,10 @@ func (c *CliApp) Run(args []string) error {
 			if currentFlag.Name == "" {
 				for _, command := range c.commands {
 					if helper.InArray(arg, command.FlagAliases) {
-						if currentCommand != nil {
+						if currentCommand == nil {
 							context.Args = append(context.Args, currentCommand.Name)
+							currentCommand = &command
 						}
-						currentCommand = &command
 						break
 					}
 				}
@@ -114,6 +136,10 @@ func (c *CliApp) Run(args []string) error {
 				currentFlag.Value = true
 			}
 			context.Flags[currentFlag.Name] = currentFlag
+			raw := currentFlag.ToString()
+			if len(raw) > 0 {
+				context.RawArgs = append(context.RawArgs, raw)
+			}
 			continue
 		}
 		if currentCommand == nil {
@@ -125,9 +151,11 @@ func (c *CliApp) Run(args []string) error {
 			}
 			if currentCommand == nil {
 				context.Args = append(context.Args, arg)
+				context.RawArgs = append(context.RawArgs, arg)
 			}
 		} else {
 			context.Args = append(context.Args, arg)
+			context.RawArgs = append(context.RawArgs, arg)
 		}
 	}
 

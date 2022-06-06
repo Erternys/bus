@@ -102,3 +102,13 @@ func (f *Flag) clone() Flag {
 		Value:       nil,
 	}
 }
+
+func (f *Flag) ToString() string {
+	if f.Kind == Bool {
+		if f.Value.(bool) {
+			return fmt.Sprintf("--%v", f.Name)
+		}
+		return ""
+	}
+	return fmt.Sprintf("--%v=%v", f.Name, f.Value)
+}
