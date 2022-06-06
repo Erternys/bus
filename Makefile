@@ -14,7 +14,7 @@ test:
 .PHONY: build
 build: bin bin/proxy
 	@$(GO) install
-	$(GO) build -o ./bin/$(EXENAME) ./main.go
+	$(GO) build -o ./bin/$(EXENAME) -ldflags="-s -w"  ./main.go
 
 bin/proxy: bin
 	cd ./proxy; \
