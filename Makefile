@@ -1,8 +1,10 @@
 GO ?= go
 EXENAME = bus
 
+GOTO_PROXY = cd ./proxy;
+
 .PHONY: all
-all: build
+all: test build
 
 %:
 	mkdir $@
@@ -10,22 +12,25 @@ all: build
 .PHONY: test
 test:
 	$(GO) test .
+	$(GOTO_PROXY) cargo test
 
 .PHONY: build
-build: bin bin/proxy
-	@$(GO) install
-	$(GO) build -o ./bin/$(EXENAME) -ldflags="-s -w"  ./main.go
+build: bin bin/bus bin/proxy
 
-bin/proxy: bin
-	cd ./proxy; \
-	cargo build --release; \
+GO_BUS_FILES = $(shell find . -type f -name '*.go')
+bin/bus: bin $(GO_BUS_FILES)
+	$(GO) install
+	$(GO) build -o ./bin/$(EXENAME) -ldflags="-s -w" ./main.go
+
+RUST_PROXY_FILES = $(shell find proxy -type f -name '*.rs')
+bin/proxy: bin $(RUST_PROXY_FILES)
+	$(GOTO_PROXY)	cargo build --release; \
 	cp target/release/proxy ../bin/; \
 
 .PHONY: clean
 clean:
 	$(GO) clean
-	rm -rf ./bin
-	rm -rf ./proxy/target
+	$(RM) -r ./bin ./proxy/target
 
 ## (un)install script for unix
 
