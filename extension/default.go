@@ -49,7 +49,7 @@ func (e *Extension) Init(name, dir string) {
 	}
 	license := helper.Input(fmt.Sprintf("license: (%v) ", "ISC"), "ISC")
 
-	content, _ := yaml.Marshal(map[string]interface{}{
+	content, _ := yaml.Marshal(map[string]any{
 		"name":        name,
 		"version":     version,
 		"description": description,
@@ -70,8 +70,8 @@ func (e *Extension) GetConfigPath() string {
 	return config
 }
 
-func (e *Extension) ParseConfig() map[string]interface{} {
-	data := make(map[string]interface{})
+func (e *Extension) ParseConfig() map[string]any {
+	data := make(map[string]any)
 	content, err := ioutil.ReadFile(e.GetConfigPath())
 	if err != nil {
 		fmt.Println("the config file was remove")
@@ -85,6 +85,6 @@ func (e *Extension) ParseConfig() map[string]interface{} {
 	return data
 }
 
-func (e *Extension) Clone() interface{} {
+func (e *Extension) Clone() any {
 	return Default()
 }

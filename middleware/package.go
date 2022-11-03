@@ -12,9 +12,9 @@ type Extension interface {
 	SetContext(c *cli.Context)
 	SetPath(p string)
 	GetConfigPath() string
-	ParseConfig() map[string]interface{}
+	ParseConfig() map[string]any
 
-	Clone() interface{}
+	Clone() any
 }
 
 var Extensions = map[string]Extension{

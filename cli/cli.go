@@ -14,6 +14,7 @@ type CliApp struct {
 	Name        string
 	Description string
 	Version     string
+	Globals     map[string]string
 
 	defaultCommand string
 	args           []string
@@ -26,11 +27,12 @@ func NewApp(name string, description string, version string) CliApp {
 		Name:        name,
 		Description: description,
 		Version:     version,
+		Globals:     make(map[string]string),
 
 		defaultCommand: "help",
-		args:           []string{},
-		commands:       []Command{},
-		flags:          []Flag{},
+		args:           make([]string, 0),
+		commands:       make([]Command, 0),
+		flags:          make([]Flag, 0),
 	}
 }
 
@@ -59,6 +61,9 @@ func (c *CliApp) AddCommandFromExe(command ExeCommand) {
 func (c *CliApp) AddFlag(flag Flag) {
 	c.flags = append(c.flags, flag)
 }
+func (c *CliApp) SetGlobal(key, value string) {
+	c.Globals[key] = value
+}
 
 func (c *CliApp) Run(args []string) error {
 	var currentCommand *Command = nil
@@ -70,14 +75,14 @@ func (c *CliApp) Run(args []string) error {
 			arg = strings.TrimLeft(arg, "-")
 			currentFlag := DefaultFlag()
 			for _, flag := range c.flags {
-				if flag.Name == arg || helper.InArray(arg, flag.Aliases) {
+				if flag.Name == arg || helper.FindArray(arg, flag.Aliases) {
 					currentFlag = flag.clone()
 					break
 				}
 			}
 			if currentCommand != nil {
 				for _, flag := range currentCommand.Flags {
-					if flag.Name == arg || helper.InArray(arg, flag.Aliases) {
+					if flag.Name == arg || helper.FindArray(arg, flag.Aliases) {
 						currentFlag = flag.clone()
 						break
 					}
@@ -86,7 +91,7 @@ func (c *CliApp) Run(args []string) error {
 
 			if currentFlag.Name == "" {
 				for _, command := range c.commands {
-					if helper.InArray(arg, command.FlagAliases) {
+					if helper.FindArray(arg, command.FlagAliases) {
 						if currentCommand == nil {
 							context.Args = append(context.Args, currentCommand.Name)
 							currentCommand = &command
@@ -144,7 +149,7 @@ func (c *CliApp) Run(args []string) error {
 		}
 		if currentCommand == nil {
 			for _, command := range c.commands {
-				if command.Name == arg || helper.InArray(arg, command.Aliases) {
+				if command.Name == arg || helper.FindArray(arg, command.Aliases) {
 					currentCommand = &command
 					break
 				}

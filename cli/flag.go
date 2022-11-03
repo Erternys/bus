@@ -19,7 +19,7 @@ type Flag struct {
 	Name        string
 	Description string
 	Aliases     []string
-	Value       interface{}
+	Value       any
 	Kind        FlagKind
 }
 
@@ -47,7 +47,7 @@ func (f *Flag) setValueAndKind(value string) {
 		f.Kind = Bool
 	default:
 		var err error = nil
-		var n interface{} = nil
+		var n any = nil
 		if strings.Contains(value, ".") {
 			n, err = strconv.ParseFloat(value, 64)
 			f.Kind = Float

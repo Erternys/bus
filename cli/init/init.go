@@ -6,12 +6,12 @@ import (
 	"bus/helper"
 	"bus/middleware"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path"
 	"sort"
 	"strings"
 	"syscall"
+	"time"
 
 	"gopkg.in/yaml.v3"
 )
@@ -49,7 +49,7 @@ func NewInitCommand() cli.Command {
 						PackagesPath: make([]*config.Package, 0),
 					})
 
-					ioutil.WriteFile(filename, content, 0644)
+					os.WriteFile(filename, content, 0644)
 				}
 				return
 			}
@@ -106,7 +106,9 @@ func NewInitCommand() cli.Command {
 
 			data, _ := yaml.Marshal(baseConfig)
 
-			ioutil.WriteFile(filename, data, 0644)
+			os.WriteFile(filename, data, 0644)
+
+			time.Sleep(time.Second)
 		},
 	}
 }

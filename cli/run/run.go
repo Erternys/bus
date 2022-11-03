@@ -59,8 +59,8 @@ func NewRunCommand() cli.Command {
 			for _, packagePath := range baseConfig.PackagesPath {
 				if from == "*" || packagePath.Name == from {
 					config := middleware.GetPackageExtention(packagePath, c).ParseConfig()
-					scripts := config["scripts"].(map[string]interface{})
-					cmd, ok := scripts[scriptName].(string)
+					scripts := config["scripts"].(map[string]string)
+					cmd, ok := scripts[scriptName]
 					if packagePath.Extend == "nodejs" {
 						manager := baseConfig.JsManager
 						cmd = fmt.Sprintf("%v run %v", manager, scriptName)

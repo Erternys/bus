@@ -37,7 +37,7 @@ func GetRepository() string {
 	return strings.TrimSpace(string(out))
 }
 
-func InArray(val interface{}, array interface{}) bool {
+func FindArray[T any](val T, array []T) bool {
 	values := reflect.ValueOf(array)
 
 	if reflect.TypeOf(array).Kind() == reflect.Slice || values.Len() > 0 {

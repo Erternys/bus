@@ -10,7 +10,7 @@ type Context struct {
 	Args    []string
 	RawArgs []string
 	Flags   map[string]Flag
-	State   map[string]interface{}
+	State   map[string]any
 }
 
 func NewContext(app *CliApp) *Context {
@@ -18,23 +18,23 @@ func NewContext(app *CliApp) *Context {
 		App:   app,
 		Args:  []string{},
 		Flags: map[string]Flag{},
-		State: map[string]interface{}{},
+		State: map[string]any{},
 	}
 }
 
 func (c *Context) StateExist(name string) bool {
-	_, ok := c.Flags[name]
+	_, ok := c.State[name]
 	return ok
 }
 
-func (c *Context) GetState(name string, defaultValue interface{}) interface{} {
+func (c *Context) GetState(name string, defaultValue any) any {
 	if c.StateExist(name) {
-		return defaultValue
+		return c.State[name]
 	}
-	return c.State[name]
+	return defaultValue
 }
 
-func (c *Context) SetState(name string, value interface{}) {
+func (c *Context) SetState(name string, value any) {
 	c.State[name] = value
 }
 
@@ -43,7 +43,7 @@ func (c *Context) FlagExist(name string) bool {
 	return ok
 }
 
-func (c *Context) GetFlag(name string, defaultValue interface{}) Flag {
+func (c *Context) GetFlag(name string, defaultValue any) Flag {
 	if c.FlagExist(name) {
 		return c.Flags[name]
 	}

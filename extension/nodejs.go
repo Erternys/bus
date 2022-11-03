@@ -6,7 +6,6 @@ import (
 	"bus/process"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"syscall"
@@ -66,9 +65,9 @@ func (e *NodeJSExtension) GetConfigPath() string {
 	return config
 }
 
-func (e *NodeJSExtension) ParseConfig() map[string]interface{} {
-	data := make(map[string]interface{})
-	content, err := ioutil.ReadFile(e.GetConfigPath())
+func (e *NodeJSExtension) ParseConfig() map[string]any {
+	data := make(map[string]any)
+	content, err := os.ReadFile(e.GetConfigPath())
 	if err != nil {
 		fmt.Println("the config file was remove")
 		syscall.Exit(1)
@@ -81,6 +80,6 @@ func (e *NodeJSExtension) ParseConfig() map[string]interface{} {
 	return data
 }
 
-func (e *NodeJSExtension) Clone() interface{} {
+func (e *NodeJSExtension) Clone() any {
 	return DefaultNodeJS()
 }
