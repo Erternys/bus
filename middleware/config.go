@@ -1,9 +1,9 @@
 package middleware
 
 import (
+	"bus/buffer"
 	"bus/cli"
 	"bus/config"
-	"fmt"
 	"os"
 	"syscall"
 
@@ -14,14 +14,14 @@ func ReadConfigFile(c *cli.Context, next func()) {
 	configFilePath := c.GetFlag("config", ".bus.yaml").Value.(string)
 	file, err := os.ReadFile(configFilePath)
 	if err != nil {
-		fmt.Printf("the config file does not exist, you can execute the command \"%s init\" or \"%s init repo\"\n", c.App.Name, c.App.Name)
+		buffer.Eprintf("the config file does not exist, you can execute the command \"%s init\" or \"%s init repo\"\n", c.App.Name, c.App.Name)
 		syscall.Exit(1)
 	}
 
 	data := config.Config{}
 	err = yaml.Unmarshal(file, &data)
 	if err != nil {
-		fmt.Println("the config file does not correct")
+		buffer.Eprintln("the config file does not correct")
 		syscall.Exit(1)
 	}
 

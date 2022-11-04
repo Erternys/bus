@@ -1,6 +1,7 @@
 package cli
 
 import (
+	"bus/buffer"
 	"fmt"
 	"sort"
 	"strings"
@@ -59,7 +60,7 @@ func (c *CliApp) SetHelpCommand() {
 
 			output += fmt.Sprintf("\nSee '%v help <command>' for more information on a specific command.\n", c.App.Name)
 
-			fmt.Println(output)
+			buffer.Println(output)
 		},
 	})
 }
@@ -72,7 +73,7 @@ func (c *CliApp) SetVersionCommand() {
 		Description:  "Print current version of " + c.Name,
 		RequiredArgs: 0,
 		Handle: func(c *Context, _ error) {
-			fmt.Println(c.App.Name + " " + c.App.Version)
+			buffer.Println(c.App.Name + " " + c.App.Version)
 		},
 	})
 }

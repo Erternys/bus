@@ -2,7 +2,7 @@ package helper
 
 import (
 	"bufio"
-	"fmt"
+	"bus/buffer"
 	"os"
 	"os/exec"
 	"reflect"
@@ -13,9 +13,9 @@ import (
 var WorkSpacePath, _ = os.Getwd()
 
 func Input(prompt string, defaultValue string) string {
-	fmt.Print(prompt)
+	buffer.Print(prompt)
 
-	value, _ := bufio.NewReader(os.Stdin).ReadString('\n')
+	value, _ := bufio.NewReader(&buffer.Stdin).ReadString('\n')
 	value = strings.TrimFunc(value, unicode.IsSpace)
 
 	if value == "" {

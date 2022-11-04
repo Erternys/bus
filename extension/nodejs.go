@@ -1,6 +1,7 @@
 package extension
 
 import (
+	"bus/buffer"
 	"bus/config"
 	"bus/helper"
 	"bus/process"
@@ -25,7 +26,7 @@ func DefaultNodeJS() *NodeJSExtension {
 }
 
 func (e *NodeJSExtension) Init(name, dir string) {
-	fmt.Println("")
+	buffer.Println("")
 
 	baseConfig := e.Context.GetState("config", nil).(config.Config)
 
@@ -50,7 +51,7 @@ func (e *NodeJSExtension) Init(name, dir string) {
 }
 
 func (e *NodeJSExtension) InstallDep() {
-	fmt.Printf("%vInstalling %v dependencies%v\n", helper.Blue, e.Path, helper.Reset)
+	buffer.Printf("%vInstalling %v dependencies%v\n", helper.Blue, e.Path, helper.Reset)
 
 	baseConfig := e.Context.GetState("config", nil).(config.Config)
 	p := process.NewProcess("npm install", fmt.Sprintf("%v install", baseConfig.JsManager))
@@ -69,12 +70,12 @@ func (e *NodeJSExtension) ParseConfig() map[string]any {
 	data := make(map[string]any)
 	content, err := os.ReadFile(e.GetConfigPath())
 	if err != nil {
-		fmt.Println("the config file was remove")
+		buffer.Eprintf("the config file of `%v` was remove\n", e.Path)
 		syscall.Exit(1)
 	}
 	err = json.Unmarshal(content, &data)
 	if err != nil {
-		fmt.Println("the config file does not correct")
+		buffer.Eprintln("the config file does not correct")
 		syscall.Exit(1)
 	}
 	return data

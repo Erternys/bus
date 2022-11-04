@@ -1,8 +1,8 @@
 package process
 
 import (
+	"bus/buffer"
 	"bus/helper"
-	"fmt"
 	"strings"
 	"syscall"
 )
@@ -31,7 +31,7 @@ func split(command string) []string {
 	}
 
 	if str {
-		fmt.Printf("%vInvalid command, please fix it%v", helper.Red+helper.Bold, helper.Reset)
+		buffer.Eprintf("%vInvalid command, please fix it%v", helper.Red+helper.Bold, helper.Reset)
 		syscall.Exit(1)
 	}
 	if current != "" {

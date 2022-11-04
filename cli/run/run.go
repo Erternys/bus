@@ -1,6 +1,7 @@
 package run
 
 import (
+	"bus/buffer"
 	"bus/cli"
 	"bus/config"
 	"bus/helper"
@@ -20,7 +21,7 @@ var startedScripts []*script.Script
 
 func CtrlC(c chan os.Signal) {
 	<-c
-	fmt.Print(" Killing all scripts\n")
+	buffer.Print(" Killing all scripts\n")
 	for _, script := range startedScripts {
 		script.Kill()
 	}
@@ -39,7 +40,7 @@ func NewRunCommand() cli.Command {
 			c.Execs(middleware.ReadConfigFile)
 
 			if len(c.Args) == 0 {
-				fmt.Printf("%vPlease give a script to execute `script_name` or `process@script_name`%v\n", helper.Red+helper.Bold, helper.Reset)
+				buffer.Eprintf("%vPlease give a script to execute `script_name` or `process@script_name`%v\n", helper.Red+helper.Bold, helper.Reset)
 				syscall.Exit(1)
 			}
 
@@ -59,8 +60,8 @@ func NewRunCommand() cli.Command {
 			for _, packagePath := range baseConfig.PackagesPath {
 				if from == "*" || packagePath.Name == from {
 					config := middleware.GetPackageExtention(packagePath, c).ParseConfig()
-					scripts := config["scripts"].(map[string]string)
-					cmd, ok := scripts[scriptName]
+					scripts := config["scripts"].(map[string]any)
+					cmd, ok := scripts[scriptName].(string)
 					if packagePath.Extend == "nodejs" {
 						manager := baseConfig.JsManager
 						cmd = fmt.Sprintf("%v run %v", manager, scriptName)
@@ -87,6 +88,8 @@ func NewRunCommand() cli.Command {
 			if !background {
 				wg.Wait()
 			}
+
+			buffer.Println()
 		},
 	}
 }

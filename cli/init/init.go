@@ -1,6 +1,7 @@
 package init
 
 import (
+	"bus/buffer"
 	"bus/cli"
 	"bus/config"
 	"bus/helper"
@@ -25,7 +26,7 @@ func NewInitCommand() cli.Command {
 			_, err := os.Stat(filename)
 			if len(c.Args) == 0 || c.Args[0] == "repo" {
 				if os.IsNotExist(err) {
-					fmt.Println("Press ^C (Ctrl+C) at any time to quit.\n")
+					buffer.Println("Press ^C (Ctrl+C) at any time to quit.\n")
 
 					currentDir := helper.Getwd()
 
@@ -60,7 +61,7 @@ func NewInitCommand() cli.Command {
 
 			for _, p := range baseConfig.PackagesPath {
 				if p.Path == dir {
-					fmt.Printf("the package `%v` already exist\n", dir)
+					buffer.Eprintf("the package `%v` already exist\n", dir)
 					syscall.Exit(0)
 				}
 			}
@@ -68,9 +69,9 @@ func NewInitCommand() cli.Command {
 			err = os.MkdirAll(dir, 0750)
 			if err != nil {
 				if strings.Contains(dir, "/") {
-					fmt.Println("the folders do not have a correct name")
+					buffer.Eprintln("the folders do not have a correct name")
 				} else {
-					fmt.Println("the folder does not have a correct name")
+					buffer.Eprintln("the folder does not have a correct name")
 				}
 				syscall.Exit(1)
 			}
@@ -82,7 +83,7 @@ func NewInitCommand() cli.Command {
 
 			extension, ok := middleware.Extensions[extend]
 			for ; !ok; extension, ok = middleware.Extensions[extend] {
-				fmt.Printf("invalid value: `%v`\n", extend)
+				buffer.Eprintf("invalid value: `%v`\n", extend)
 				extend = helper.Input(fmt.Sprintf("sub-package type: (%v) ", "default"), "default")
 			}
 

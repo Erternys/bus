@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"strings"
 )
 
 type Writer interface {
@@ -40,18 +41,36 @@ func (b *Buffer) Write(p []byte) (int, error) {
 	if b.close {
 		return 0, errors.New("you can't write want the buffer is closed")
 	}
+	n := 0
 	NewLine := []byte("\n")
 	splited := bytes.Split(p, NewLine)
 	for _, split := range splited {
 		bytes.Trim(split, "\r")
 	}
-	for i := 0; i < len(splited)-1; i++ {
-		line := splited[i]
-		b.Output.WriteString(fmt.Sprintf(b.beforeLine, b.name))
-		b.Output.Write(line)
+
+	lastIndex := len(splited) - 1
+	for i := 0; i < lastIndex; i++ {
+		n += b.writeLine(splited[i]) + len(NewLine)
 		b.Output.Write(NewLine)
 	}
-	return len(p), nil
+	n += b.writeLine(splited[lastIndex])
+
+	return n, nil
+}
+
+func (b *Buffer) writeLine(line []byte) int {
+	line_len := len(line)
+	if strings.Contains(b.beforeLine, "%v") {
+		prefix := fmt.Sprintf(b.beforeLine, b.name)
+		line_len += len(prefix)
+		b.Output.WriteString(prefix)
+	} else if len(b.beforeLine) > 0 {
+		line_len += len(b.beforeLine)
+		b.Output.WriteString(b.beforeLine)
+	}
+	b.Output.Write(line)
+
+	return line_len
 }
 
 func (b *Buffer) WriteString(s string) (int, error) {

@@ -65,6 +65,20 @@ func (c *CliApp) SetGlobal(key, value string) {
 	c.Globals[key] = value
 }
 
+func (c *CliApp) CallCommand(name string, args []string) error {
+	for _, command := range c.commands {
+		if name == command.Name {
+			context := NewContext(c)
+			context.Args = args
+			context.RawArgs = args
+			command.Handle(context, nil)
+			return nil
+		}
+	}
+
+	return fmt.Errorf("the command %v does not exist", name)
+}
+
 func (c *CliApp) Run(args []string) error {
 	var currentCommand *Command = nil
 	var err error = nil

@@ -1,6 +1,7 @@
 package extension
 
 import (
+	"bus/buffer"
 	"bus/cli"
 	"bus/helper"
 
@@ -61,7 +62,7 @@ func (e *Extension) Init(name, dir string) {
 }
 
 func (e *Extension) InstallDep() {
-	fmt.Printf("%v%v has no dependency manager%v\n", helper.Red, e.Path, helper.Reset)
+	buffer.Eprintf("%v%v has no dependency manager%v\n", helper.Red, e.Path, helper.Reset)
 }
 
 func (e *Extension) GetConfigPath() string {
@@ -74,12 +75,12 @@ func (e *Extension) ParseConfig() map[string]any {
 	data := make(map[string]any)
 	content, err := ioutil.ReadFile(e.GetConfigPath())
 	if err != nil {
-		fmt.Println("the config file was remove")
+		buffer.Eprintf("the config file of `%v` was remove\n", e.Path)
 		syscall.Exit(1)
 	}
 	err = yaml.Unmarshal(content, &data)
 	if err != nil {
-		fmt.Println("the config file does not correct")
+		buffer.Eprintln("the config file does not correct")
 		syscall.Exit(1)
 	}
 	return data
