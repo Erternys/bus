@@ -1,10 +1,10 @@
 package script
 
 import (
+	"bus/buffer"
 	"bus/config"
 	"bus/helper"
 	"bus/process"
-	"fmt"
 	"syscall"
 )
 
@@ -38,7 +38,6 @@ func NewScript(pathConfig *config.Package, absPath, cmd string) *Script {
 		cmd = cmd[1:]
 	}
 	p := process.NewProcess(pathConfig.Name, cmd)
-	p.UseStandardIO()
 	if muteLvl == RunMuted || muteLvl == Muted {
 		p.Mute()
 	}
@@ -58,7 +57,7 @@ func (s *Script) Start(done func()) error {
 	defer done()
 
 	if s.muteLvl != PatialMuted && s.muteLvl != Muted || s.DryRun {
-		fmt.Printf("%v$: %v%v\n", helper.Cyan, helper.Bold+s.cmd, helper.Reset)
+		buffer.Printf("%v$: %v%v\n", helper.Cyan, helper.Bold+s.cmd, helper.Reset)
 	}
 
 	if s.DryRun {
@@ -67,7 +66,7 @@ func (s *Script) Start(done func()) error {
 
 	err := s.process.Run()
 	if err != nil {
-		fmt.Println(err)
+		buffer.Println(err)
 		syscall.Exit(1)
 	}
 	return s.process.Wait()

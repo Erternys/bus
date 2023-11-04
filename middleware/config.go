@@ -21,7 +21,7 @@ func ReadConfigFile(c *cli.Context, next func()) {
 	data := config.Config{}
 	err = yaml.Unmarshal(file, &data)
 	if err != nil {
-		buffer.Eprintln("the config file does not correct")
+		buffer.Eprintln(err)
 		syscall.Exit(1)
 	}
 

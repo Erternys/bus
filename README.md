@@ -43,9 +43,9 @@ description: project description
 repository: project repo
 js_manager: npm / yarn / pnpm
 packages:
-    - path: path/to/sub-package
-      name: sub-package
-      extend: default/nodejs
+  - path: path/to/sub-package
+    name: sub-package
+    extend: default/nodejs
 ```
 
 ```yml

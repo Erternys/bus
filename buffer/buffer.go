@@ -53,7 +53,9 @@ func (b *Buffer) Write(p []byte) (int, error) {
 		n += b.writeLine(splited[i]) + len(NewLine)
 		b.Output.Write(NewLine)
 	}
-	n += b.writeLine(splited[lastIndex])
+	if len(splited[lastIndex]) != 0 {
+		n += b.writeLine(splited[lastIndex])
+	}
 
 	return n, nil
 }

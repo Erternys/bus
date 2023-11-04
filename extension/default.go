@@ -7,7 +7,6 @@ import (
 
 	// "bus/middleware"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"syscall"
@@ -58,7 +57,7 @@ func (e *Extension) Init(name, dir string) {
 		"license":     license,
 	})
 
-	ioutil.WriteFile(filename, content, 0644)
+	os.WriteFile(filename, content, 0644)
 }
 
 func (e *Extension) InstallDep() {
@@ -73,7 +72,7 @@ func (e *Extension) GetConfigPath() string {
 
 func (e *Extension) ParseConfig() map[string]any {
 	data := make(map[string]any)
-	content, err := ioutil.ReadFile(e.GetConfigPath())
+	content, err := os.ReadFile(e.GetConfigPath())
 	if err != nil {
 		buffer.Eprintf("the config file of `%v` was remove\n", e.Path)
 		syscall.Exit(1)
