@@ -15,17 +15,17 @@ test:
 	$(GOTO_PROXY) cargo test
 
 .PHONY: build
-build: bin bin/bus bin/proxy
+build: bin bin/$(EXENAME) bin/$(EXENAME)-proxy
 
 GO_BUS_FILES = $(shell find . -type f -name '*.go')
-bin/bus: bin $(GO_BUS_FILES)
+bin/$(EXENAME): bin $(GO_BUS_FILES)
 	$(GO) install
 	$(GO) build -o ./bin/$(EXENAME) -ldflags="-s -w" ./main.go
 
 RUST_PROXY_FILES = $(shell find proxy -type f -name '*.rs')
-bin/proxy: bin $(RUST_PROXY_FILES)
+bin/$(EXENAME)-proxy: bin $(RUST_PROXY_FILES)
 	$(GOTO_PROXY)	cargo build --release; \
-	cp target/release/proxy ../bin/; \
+	cp target/release/proxy ../bin/bus-proxy; \
 
 .PHONY: clean
 clean:

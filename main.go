@@ -26,7 +26,7 @@ func main() {
 	app.AddCommand(install.NewInstallCommand())
 
 	app.AddCommandFromExe(cli.ExeCommand{
-		File:             "proxy",
+		File:             "bus-proxy",
 		Name:             "proxy",
 		Description:      "Server proxy for bus",
 		ShortDescription: "Server proxy for bus",
