@@ -11,10 +11,14 @@ use super::alias::Alias;
 use super::errors::{e400, e404, e500};
 
 #[derive(Debug, Args)]
-pub struct Start;
+pub struct Start {
+  #[clap(long)]
+  log: bool
+}
 
 impl Start {
   pub fn call(&self) {
+    let logging = self.log;
     let file = match File::open("./.bus.yaml") {
       Ok(f) => f,
       Err(_) => {
@@ -53,7 +57,11 @@ impl Start {
 
     let (aliases, joker) = Alias::from_iter(proxy.aliases);
 
-    let server = Server::new(addr);
+    let server = Server::new(addr.clone());
+    if logging {
+      let time = chrono::Local::now().to_rfc2822();
+      println!("[{time} INFO]: Server start on {addr}");
+    }
     server.run(move |mut client_conn, addr| {
       let mut req = match Request::from_conn(&mut client_conn) {
         Ok(r) => r,
@@ -62,6 +70,12 @@ impl Start {
             HttpErrorKind::Reading => e500(),
             _ => e400()
           };
+
+          if logging {
+            let time = chrono::Local::now().to_rfc2822();
+            eprintln!("[{time} ERROR]: {error}");
+          }
+
           res.send(&mut client_conn).unwrap();
           return
         }
@@ -88,6 +102,16 @@ impl Start {
             e404()
           },
       };
+
+      if logging {
+        let time = chrono::Local::now().to_rfc2822();
+        if res.status >= 400 {
+          eprintln!("[{time} ERROR]: {} for {}", res.status, req.url);
+        } else {
+          println!("[{time} INFO]: {} for {}", res.status, req.url);
+        }
+      }
+
       res.send(&mut client_conn).unwrap();
     });
   }

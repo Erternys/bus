@@ -8,7 +8,7 @@ pub struct Config {
   pub version: String,
   pub description: String,
   pub repository: String,
-  pub manager: String,
+  pub js_manager: String,
   pub packages: Vec<Package>,
   pub proxy: Option<ProxyConfig>
 }

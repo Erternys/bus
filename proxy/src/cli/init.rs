@@ -24,8 +24,8 @@ impl Init {
 
     let mut config: Config = match serde_yaml::from_reader(&file) {
       Ok(c) => c,
-      Err(_) => {
-        eprintln!("The config file cannot be read, please change the permission");
+      Err(e) => {
+        eprintln!("{e}");
         exit(1);
       }
     };
