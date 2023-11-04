@@ -11,14 +11,16 @@ type Context struct {
 	RawArgs []string
 	Flags   map[string]Flag
 	State   map[string]any
+	Command *Command
 }
 
 func NewContext(app *CliApp) *Context {
 	return &Context{
-		App:   app,
-		Args:  []string{},
-		Flags: map[string]Flag{},
-		State: map[string]any{},
+		App:     app,
+		Args:    []string{},
+		Flags:   map[string]Flag{},
+		State:   map[string]any{},
+		Command: nil,
 	}
 }
 

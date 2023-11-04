@@ -19,8 +19,11 @@ import (
 
 func NewInitCommand() cli.Command {
 	return cli.Command{
-		Name:         "init",
-		RequiredArgs: 1,
+		Name:             "init",
+		RequiredArgs:     0,
+		Description:      "Initialise a package or a sub-package", // TODO: write a correct description of the init command
+		ShortDescription: "Initialise a package or a sub-package",
+		Usage:            "init [path]|repo",
 		Handle: func(c *cli.Context, _ error) {
 			filename := c.GetFlag("config", ".bus.yaml").Value.(string)
 			_, err := os.Stat(filename)

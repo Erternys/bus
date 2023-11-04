@@ -4,6 +4,7 @@ import (
 	"bus/cli"
 	init_c "bus/cli/init"
 	"bus/cli/install"
+	new_c "bus/cli/new"
 	"bus/cli/run"
 	"os"
 )
@@ -17,17 +18,19 @@ var app = cli.NewApp(
 func main() {
 	app.SetGlobal("SHELL", os.Getenv("SHELL"))
 
-	app.AddFlag(cli.NewFlag("config", "Change the config file used (by default: .bus.yaml)", cli.String, "c"))
-	app.AddFlag(cli.NewFlag("dry-run", "Show which script bus execute without execute it (muter characters do not work)", cli.Bool, "dr", "d"))
+	app.AddFlag(cli.NewFlag("dry-run", "Show which script bus execute without execute it (muter characters are disable)", cli.Bool, "dr", "d"))
 
+	app.AddCommand(new_c.NewNewCommand())
 	app.AddCommand(init_c.NewInitCommand())
 	app.AddCommand(run.NewRunCommand())
 	app.AddCommand(install.NewInstallCommand())
 
 	app.AddCommandFromExe(cli.ExeCommand{
-		File:        "proxy",
-		Name:        "proxy",
-		Description: "Server proxy for bus",
+		File:             "proxy",
+		Name:             "proxy",
+		Description:      "Server proxy for bus",
+		ShortDescription: "Server proxy for bus",
+		Usage:            "proxy [Subcommand]",
 	})
 
 	app.SetHelpCommand()

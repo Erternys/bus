@@ -36,6 +36,9 @@ func NewRunCommand() cli.Command {
 		Flags: []cli.Flag{
 			cli.NewFlag("background", "run command(s) in background (by default: false)", cli.Bool, "bg", "b"),
 		},
+		Description:      "Run one or more commands in parallel", // TODO: write a correct description of the run command
+		ShortDescription: "Run one or more commands in parallel",
+		Usage:            "run script_name | process@script_name",
 		Handle: func(c *cli.Context, _ error) {
 			c.Execs(middleware.ReadConfigFile)
 

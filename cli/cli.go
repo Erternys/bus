@@ -65,6 +65,16 @@ func (c *CliApp) SetGlobal(key, value string) {
 	c.Globals[key] = value
 }
 
+func (c *CliApp) GetCommand(name string) *Command {
+	for _, command := range c.commands {
+		if name == command.Name {
+			return &command
+		}
+	}
+
+	return nil
+}
+
 func (c *CliApp) CallCommand(name string, args []string) error {
 	for _, command := range c.commands {
 		if name == command.Name {
@@ -83,6 +93,7 @@ func (c *CliApp) Run(args []string) error {
 	var currentCommand *Command = nil
 	var err error = nil
 	context := NewContext(c)
+outer:
 	for i := 0; i < len(args); i++ {
 		arg := args[i]
 		if strings.HasPrefix(arg, "-") {
@@ -107,14 +118,10 @@ func (c *CliApp) Run(args []string) error {
 				for _, command := range c.commands {
 					if helper.FindArray(arg, command.FlagAliases) {
 						if currentCommand == nil {
-							context.Args = append(context.Args, currentCommand.Name)
 							currentCommand = &command
+							continue outer
 						}
-						break
 					}
-				}
-				if currentFlag.Name != "" {
-					continue
 				}
 			}
 			if strings.Contains(arg, "=") {
@@ -179,12 +186,7 @@ func (c *CliApp) Run(args []string) error {
 	}
 
 	if currentCommand == nil {
-		for _, command := range c.commands {
-			if command.Name == c.defaultCommand {
-				currentCommand = &command
-				break
-			}
-		}
+		currentCommand = c.GetCommand(c.defaultCommand)
 		if currentCommand == nil {
 			return errors.New("no command found")
 		}
@@ -194,6 +196,7 @@ func (c *CliApp) Run(args []string) error {
 		err = fmt.Errorf("expected %v arguments, but got %v.", currentCommand.RequiredArgs, len(context.Args))
 	}
 
+	context.Command = currentCommand
 	currentCommand.Handle(context, err)
 
 	return err

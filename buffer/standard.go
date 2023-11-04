@@ -30,6 +30,16 @@ func Println(a ...any) (int, error) {
 	return fmt.Fprintln(&Stdout, a...)
 }
 
+func Fprint(buffer *Buffer, a ...any) (int, error) {
+	return fmt.Fprint(buffer, a...)
+}
+func Fprintf(buffer *Buffer, format string, a ...any) (int, error) {
+	return fmt.Fprintf(buffer, format, a...)
+}
+func Fprintln(buffer *Buffer, a ...any) (int, error) {
+	return fmt.Fprintln(buffer, a...)
+}
+
 func Eprint(a ...any) (int, error) {
 	return fmt.Fprint(&Stderr, a...)
 }

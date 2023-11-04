@@ -2,6 +2,7 @@ package new
 
 import (
 	"bus/cli"
+	"bus/helper"
 	"fmt"
 	"os"
 	"strings"
@@ -9,19 +10,24 @@ import (
 )
 
 func checkNameValidity(path string) bool {
-	return !strings.ContainsAny(path, "\\?%*:|\"<>/")
+	return !strings.ContainsAny(path, "\\?%*:|\"<>/") && path != ""
 }
 
 func NewNewCommand() cli.Command {
 	return cli.Command{
-		Name:         "new",
-		RequiredArgs: 1,
+		Name:             "new",
+		RequiredArgs:     0,
+		Description:      "Generate a new folder and init the project inside",
+		ShortDescription: "Generate a new project",
+		Usage:            "new [name]",
 		Handle: func(c *cli.Context, _ error) {
+			dir := ""
 			if len(c.Args) == 0 {
-				fmt.Println("...")
-				syscall.Exit(1)
+				helper.Input("name of the project: ", "")
+			} else {
+				dir = c.Args[0]
 			}
-			dir := c.Args[0]
+
 			if !checkNameValidity(dir) {
 				fmt.Println("the folder does not have a correct name")
 				syscall.Exit(1)
