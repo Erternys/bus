@@ -39,7 +39,8 @@ impl Init {
     let proxy = ProxyConfig {
       port,
       open: Some(open),
-      aliases: BTreeMap::new()
+      aliases: BTreeMap::new(),
+      on_script: None
     };
 
     config.proxy = Some(proxy);

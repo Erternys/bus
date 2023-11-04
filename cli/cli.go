@@ -40,8 +40,8 @@ func (c *CliApp) AddCommand(command Command) {
 	c.commands = append(c.commands, command)
 }
 func (c *CliApp) AddCommandFromExe(command ExeCommand) {
-	exe_path := path.Join(os.Args[0], "..", command.File)
-	_, err := os.Stat(exe_path)
+	exePath := path.Join(os.Args[0], "..", command.File)
+	_, err := os.Stat(exePath)
 	if !os.IsNotExist(err) {
 		c.commands = append(c.commands, Command{
 			Name:        command.Name,
@@ -49,8 +49,11 @@ func (c *CliApp) AddCommandFromExe(command ExeCommand) {
 			Aliases:     command.Aliases,
 			FlagAliases: command.FlagAliases,
 			Description: command.Description,
+			State: map[string]any{
+				"exe-path": exePath,
+			},
 			Handle: func(c *Context, err error) {
-				p := process.NewProcess(command.Name, exe_path+" "+strings.Join(c.RawArgs, " "))
+				p := process.NewProcess(command.Name, exePath+" "+strings.Join(c.RawArgs, " "))
 				p.UseStandardIO()
 				p.Run()
 				p.Wait()

@@ -8,7 +8,7 @@ pub struct Config {
   pub version: String,
   pub description: String,
   pub repository: String,
-  pub js_manager: String,
+  pub js_manager: Option<String>,
   pub packages: Vec<Package>,
   pub proxy: Option<ProxyConfig>
 }
@@ -23,5 +23,11 @@ pub struct Package {
 pub struct ProxyConfig {
   pub port: String,
   pub open: Option<bool>,
-  pub aliases: BTreeMap<String, String>
+  pub aliases: BTreeMap<String, String>,
+  pub on_script: Option<OnScript>
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct OnScript {
+  pub log: Option<bool>
 }

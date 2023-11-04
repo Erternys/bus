@@ -19,6 +19,7 @@ type Command struct {
 	ShortDescription string
 	Usage            string
 	RequiredArgs     int
+	State            map[string]any
 	Handle           HandleAction
 }
 

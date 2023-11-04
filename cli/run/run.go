@@ -6,6 +6,7 @@ import (
 	"bus/config"
 	"bus/helper"
 	"bus/middleware"
+	"bus/process"
 	"bus/script"
 	"fmt"
 	"os"
@@ -60,6 +61,8 @@ func NewRunCommand() cli.Command {
 				scriptName = c.Args[0]
 			}
 
+			dryRun := c.GetFlag("dry-run", false).Value.(bool)
+
 			for _, packagePath := range baseConfig.PackagesPath {
 				if from == "*" || packagePath.Name == from {
 					config := middleware.GetPackageExtention(packagePath, c).ParseConfig()
@@ -75,7 +78,7 @@ func NewRunCommand() cli.Command {
 					}
 
 					s := script.NewScript(packagePath, path.Join(helper.WorkSpacePath, packagePath.Path), cmd)
-					s.DryRun = c.GetFlag("dry-run", false).Value.(bool)
+					s.DryRun = dryRun
 					if !background {
 						wg.Add(1)
 					}
@@ -83,6 +86,31 @@ func NewRunCommand() cli.Command {
 					startedScripts = append(startedScripts, s)
 				}
 			}
+
+			proxyCommand := c.App.GetCommand("proxy")
+			if proxyCommand != nil && baseConfig.Proxy.OnScript != nil && helper.FindArray(scriptName, baseConfig.Proxy.OnScript.ListenRun) && !dryRun {
+				exePath := proxyCommand.State["exe-path"].(string)
+				cmd := fmt.Sprintf("%v start", exePath)
+				p := process.NewProcess("bus proxy", cmd)
+				p.Restart = baseConfig.Proxy.OnScript.RestartOnCrash
+				p.UseStandardIO()
+				if !background {
+					wg.Add(1)
+				}
+				go func() {
+					defer wg.Done()
+
+					buffer.Printf("%v$: %v%v\n", helper.Cyan, helper.Bold+cmd, helper.Reset)
+
+					err := p.Run()
+					if err != nil {
+						buffer.Eprintln(err)
+						syscall.Exit(1)
+					}
+					p.Wait()
+				}()
+			}
+
 			sig := make(chan os.Signal)
 			signal.Notify(sig, os.Interrupt, syscall.SIGTERM)
 

@@ -18,7 +18,6 @@ pub struct Start {
 
 impl Start {
   pub fn call(&self) {
-    let logging = self.log;
     let file = match File::open("./.bus.yaml") {
       Ok(f) => f,
       Err(_) => {
@@ -29,11 +28,16 @@ impl Start {
 
     let config: Config = match serde_yaml::from_reader(&file) {
       Ok(c) => c,
-      Err(_) => {
-        eprintln!("The config file cannot be read, please change the permission");
+      Err(e) => {
+        eprintln!("{e}");
         exit(1);
       }
     };
+
+    let logging = config.proxy.as_ref()
+      .and_then(|proxy| proxy.on_script.as_ref())
+      .and_then(|on_script| on_script.log)
+      .unwrap_or(self.log);
 
     let proxy = if let Some(proxy) = config.proxy {
       proxy

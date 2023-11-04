@@ -1,5 +1,12 @@
 package config
 
+type Proxy struct {
+	OnScript *struct {
+		ListenRun      []string `yaml:"listen_run"`
+		RestartOnCrash bool     `default:"false" yaml:"restart_on_crash"`
+	} `yaml:"on_script"`
+}
+
 type Package struct {
 	Path   string
 	Name   string
@@ -13,4 +20,5 @@ type Config struct {
 	Repository   string
 	JsManager    string     `yaml:"js_manager"`
 	PackagesPath []*Package `yaml:"packages"`
+	Proxy        Proxy
 }
