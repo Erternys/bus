@@ -4,6 +4,7 @@ import (
 	"bus/buffer"
 	"os"
 	"os/exec"
+	"strings"
 )
 
 type Command struct {
@@ -19,7 +20,15 @@ type Command struct {
 }
 
 func (c *Command) Start() error {
-	c.current = exec.Command(c.value[0], c.value[1:]...)
+	name := c.value[0]
+	args := c.value[1:]
+	if name == "sh" {
+		name = os.Getenv("SHELL")
+		args = []string{
+			"-c", strings.Join(args, " "),
+		}
+	}
+	c.current = exec.Command(name, args...)
 	c.current.Env = os.Environ()
 	c.current.Dir = c.Path
 	c.current.Stdin = c.Stdin
