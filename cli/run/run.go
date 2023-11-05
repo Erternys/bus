@@ -19,9 +19,15 @@ import (
 
 var wg sync.WaitGroup
 var startedScripts []*script.Script
+var proxy *process.Process
 
 func CtrlC(c chan os.Signal) {
 	<-c
+	if proxy != nil {
+		buffer.Print(" Killing Proxy\n")
+		proxy.Kill()
+	}
+
 	buffer.Print(" Killing all scripts\n")
 	for _, script := range startedScripts {
 		script.Kill()
@@ -91,23 +97,26 @@ func NewRunCommand() cli.Command {
 			if proxyCommand != nil && baseConfig.Proxy.OnScript != nil && helper.FindArray(scriptName, baseConfig.Proxy.OnScript.ListenRun) && !dryRun {
 				exePath := proxyCommand.State["exe-path"].(string)
 				cmd := fmt.Sprintf("%v start", exePath)
-				p := process.NewProcess("bus proxy", cmd)
-				p.Restart = baseConfig.Proxy.OnScript.RestartOnCrash
-				p.UseStandardIO()
+				proxy = process.NewProcess("bus proxy", cmd)
+				proxy.UseStandardIO()
 				if !background {
 					wg.Add(1)
 				}
 				go func() {
 					defer wg.Done()
+					first := true
 
-					buffer.Printf("%v$: %v%v\n", helper.Cyan, helper.Bold+cmd, helper.Reset)
+					for first || baseConfig.Proxy.OnScript.RestartOnCrash {
+						first = false
+						buffer.Printf("%v$: %v%v\n", helper.Cyan, helper.Bold+cmd, helper.Reset)
 
-					err := p.Run()
-					if err != nil {
-						buffer.Eprintln(err)
-						syscall.Exit(1)
+						err := proxy.Run()
+						if err != nil {
+							buffer.Eprintln(err)
+							syscall.Exit(1)
+						}
+						proxy.Wait()
 					}
-					p.Wait()
 				}()
 			}
 
