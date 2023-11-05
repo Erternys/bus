@@ -2,7 +2,7 @@ use std::io::{self, Read, Write};
 use std::net::TcpStream;
 use std::time::Duration;
 
-const CHUNK_LENGTH_MAX: usize = u16::MAX as usize;
+const CHUNK_LENGTH_MAX: usize = 32 as usize;
 
 pub struct Conn {
   stream: TcpStream

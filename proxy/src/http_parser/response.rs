@@ -77,14 +77,7 @@ impl Response {
       ))
     }
 
-    *self = Self::parse(match String::from_utf8(body) {
-      Ok(d) => d,
-      Err(_) =>
-        return Err(HttpError::new(
-          HttpErrorKind::Utf8,
-          "the data has not been encoded in utf-8 OR the utf-8 parsing is not correct"
-        )),
-    })?;
+    *self = Self::parse(unsafe { String::from_utf8_unchecked(body) })?;
 
     Ok(())
   }

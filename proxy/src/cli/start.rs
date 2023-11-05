@@ -93,8 +93,11 @@ impl Start {
           None => break None
         };
 
-        if req.url.starts_with(path) {
-          break Some(alias.to_response(addr.clone(), path.clone(), &mut req))
+        let path_trimmed = path.trim_end_matches('/');
+        let path = format!("{path_trimmed}/");
+
+        if req.url.starts_with(&path) || req.url == path_trimmed {
+          break Some(alias.to_response(addr.clone(), path, &mut req))
         }
       };
       let mut res = match res {

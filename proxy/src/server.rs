@@ -21,7 +21,13 @@ impl Server {
 
     loop {
       let stream = listener.accept().unwrap().0;
-      callback(Conn::from_stream(stream).unwrap(), &self.addr);
+      match Conn::from_stream(stream) {
+        Ok(conn) => callback(conn, &self.addr),
+        Err(_) => {
+          let time = chrono::Local::now().to_rfc2822();
+          eprintln!("[{time} ERROR SERVER]: The connection die.");
+        }
+      }
     }
   }
 }
